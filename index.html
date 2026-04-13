@@ -540,18 +540,52 @@
     <div id="cycle-setup" class="card p-6">
       <h2 class="text-xl font-bold text-gray-800 mb-4">Настройка трекера</h2>
       <div class="space-y-4 max-w-md">
+        <!-- Режим -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Дата последних месячных</label>
-          <input type="date" id="setup-last-period" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Режим</label>
+          <div class="flex gap-2">
+            <button id="mode-menstrual" onclick="setCycleMode('menstrual')" class="flex-1 py-2 px-4 border-2 border-primary bg-pink-50 text-primary rounded-lg font-medium">
+              Менструальный цикл
+            </button>
+            <button id="mode-menopause" onclick="setCycleMode('menopause')" class="flex-1 py-2 px-4 border-2 border-gray-200 text-gray-600 rounded-lg font-medium hover:border-gray-300">
+              Менопауза
+            </button>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Длина цикла (дни)</label>
-          <input type="number" id="setup-cycle-length" value="28" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+
+        <!-- Настройки менструального цикла -->
+        <div id="menstrual-settings">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Дата последних месячных</label>
+            <input type="date" id="setup-last-period" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Длина цикла (дни)</label>
+            <input type="number" id="setup-cycle-length" value="28" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Длина месячных (дни)</label>
+            <input type="number" id="setup-period-length" value="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Длина месячных (дни)</label>
-          <input type="number" id="setup-period-length" value="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+
+        <!-- Настройки менопаузы -->
+        <div id="menopause-settings" class="hidden">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Дата наступления менопаузы</label>
+            <input type="date" id="setup-menopause-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+          </div>
+          <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+            <h4 class="font-medium text-blue-800 mb-2">О менопаузе</h4>
+            <p class="text-sm text-blue-700">После менопаузы риск рака молочной железы увеличивается. Важно:</p>
+            <ul class="text-sm text-blue-700 mt-2 list-disc list-inside">
+              <li>Регулярно проходить маммографию</li>
+              <li>Продолжать самообследование</li>
+              <li>Поддерживать здоровый вес</li>
+            </ul>
+          </div>
         </div>
+
         <div class="flex gap-2">
             <button id="save-cycle-settings" class="flex-1 py-3 bg-primary text-white rounded-lg hover:bg-pink-600 font-medium">Сохранить</button>
             <button id="reset-cycle-btn" class="py-3 px-4 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium text-sm">Сброс</button>
@@ -560,57 +594,123 @@
     </div>
 
     <div id="cycle-calendar-container" class="hidden space-y-6">
-      <div class="card p-6 bg-gradient-to-r from-pink-50 to-purple-50">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <p class="text-sm text-gray-600">Сегодня</p>
-            <p class="text-4xl font-bold text-gray-800">День <span id="current-cycle-day">1</span></p>
-            <p class="text-lg text-primary font-medium" id="current-phase-name"></p>
-          </div>
-          <div class="flex gap-4">
-            <div class="text-center">
-              <div class="w-16 h-16 rounded-full bg-white shadow flex items-center justify-center mb-1"><span class="text-2xl font-bold text-red-500" id="days-to-period">—</span></div>
-              <p class="text-xs text-gray-600">до месячных</p>
+      <!-- Контейнер для режима менструального цикла -->
+      <div id="menstrual-view">
+        <div class="card p-6 bg-gradient-to-r from-pink-50 to-purple-50">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <p class="text-sm text-gray-600">Сегодня</p>
+              <p class="text-4xl font-bold text-gray-800">День <span id="current-cycle-day">1</span></p>
+              <p class="text-lg text-primary font-medium" id="current-phase-name"></p>
             </div>
-            <div class="text-center">
-              <div class="w-16 h-16 rounded-full bg-white shadow flex items-center justify-center mb-1"><span class="text-2xl font-bold text-purple-500" id="days-to-ovulation">—</span></div>
-              <p class="text-xs text-gray-600">до овуляции</p>
+            <div class="flex gap-4">
+              <div class="text-center">
+                <div class="w-16 h-16 rounded-full bg-white shadow flex items-center justify-center mb-1"><span class="text-2xl font-bold text-red-500" id="days-to-period">—</span></div>
+                <p class="text-xs text-gray-600">до месячных</p>
+              </div>
+              <div class="text-center">
+                <div class="w-16 h-16 rounded-full bg-white shadow flex items-center justify-center mb-1"><span class="text-2xl font-bold text-purple-500" id="days-to-ovulation">—</span></div>
+                <p class="text-xs text-gray-600">до овуляции</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div id="exam-reminder" class="hidden card p-4 bg-cyan-50 border-cyan-200">
-        <div class="flex items-start gap-3">
-          <div class="p-2 rounded-full bg-cyan-100 text-cyan-600 pulse"><i data-feather="bell" class="w-5 h-5"></i></div>
-          <div class="flex-1">
-            <p class="font-medium text-cyan-800">Время для самообследования!</p>
-            <p class="text-sm text-cyan-700">Оптимальный период (5-7 день).</p>
+        <div id="exam-reminder" class="hidden card p-4 bg-cyan-50 border-cyan-200">
+          <div class="flex items-start gap-3">
+            <div class="p-2 rounded-full bg-cyan-100 text-cyan-600 pulse"><i data-feather="bell" class="w-5 h-5"></i></div>
+            <div class="flex-1">
+              <p class="font-medium text-cyan-800">Время для самообследования!</p>
+              <p class="text-sm text-cyan-700">Оптимальный период (5-7 день).</p>
+            </div>
+            <button id="exam-done-btn" class="px-3 py-1 bg-cyan-600 text-white text-sm rounded-lg">Готово</button>
           </div>
-          <button id="exam-done-btn" class="px-3 py-1 bg-cyan-600 text-white text-sm rounded-lg">Готово</button>
+        </div>
+
+        <div class="card p-6">
+          <div class="flex items-center justify-between mb-4">
+            <button id="prev-month" class="p-2 hover:bg-gray-100 rounded-lg"><i data-feather="chevron-left" class="w-5 h-5"></i></button>
+            <h3 class="text-lg font-semibold text-gray-800" id="calendar-month-year"></h3>
+            <button id="next-month" class="p-2 hover:bg-gray-100 rounded-lg"><i data-feather="chevron-right" class="w-5 h-5"></i></button>
+          </div>
+          <div class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-medium text-gray-500">
+              <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+          </div>
+          <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+          <div class="flex flex-wrap gap-4 mt-6 pt-4 border-t border-gray-100">
+            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-red-200"></div><span class="text-sm text-gray-600"> Месячные </span></div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-purple-200"></div><span class="text-sm text-gray-600"> Овуляция </span></div>
+          </div>
+        </div>
+
+        <!-- ПРОГНОЗ -->
+        <div class="card p-6">
+          <h3 class="font-semibold text-gray-800 mb-4">Прогноз на 3 месяца</h3>
+          <div id="forecast-list" class="space-y-3"></div>
         </div>
       </div>
 
-      <div class="card p-6">
-        <div class="flex items-center justify-between mb-4">
-          <button id="prev-month" class="p-2 hover:bg-gray-100 rounded-lg"><i data-feather="chevron-left" class="w-5 h-5"></i></button>
-          <h3 class="text-lg font-semibold text-gray-800" id="calendar-month-year"></h3>
-          <button id="next-month" class="p-2 hover:bg-gray-100 rounded-lg"><i data-feather="chevron-right" class="w-5 h-5"></i></button>
+      <!-- Контейнер для режима менопаузы -->
+      <div id="menopause-view" class="hidden">
+        <div class="card p-6 bg-gradient-to-r from-blue-50 to-teal-50">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+              <span class="text-3xl">🌸</span>
+            </div>
+            <div>
+              <p class="text-4xl font-bold text-gray-800">Менопауза</p>
+              <p class="text-lg text-blue-600" id="menopause-status">Активный режим</p>
+            </div>
+          </div>
+          <p class="text-gray-600 mb-4" id="menopause-duration"></p>
         </div>
-        <div class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-medium text-gray-500">
-            <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
-        </div>
-        <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
-        <div class="flex flex-wrap gap-4 mt-6 pt-4 border-t border-gray-100">
-          <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-red-200"></div><span class="text-sm text-gray-600"> Месячные </span></div>
-          <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-purple-200"></div><span class="text-sm text-gray-600"> Овуляция </span></div>
-        </div>
-      </div>
 
-      <!-- ПРОГНОЗ -->
-      <div class="card p-6">
-        <h3 class="font-semibold text-gray-800 mb-4">Прогноз на 3 месяца</h3>
-        <div id="forecast-list" class="space-y-3"></div>
+        <!-- Рекомендации для менопаузы -->
+        <div class="card p-6">
+          <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <i data-feather="heart" class="w-5 h-5 text-red-500"></i> Рекомендации для вас
+          </h3>
+          <div class="space-y-3">
+            <div class="flex gap-3 p-3 bg-pink-50 rounded-lg">
+              <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center flex-shrink-0">
+                <i data-feather="activity" class="w-5 h-5 text-pink-600"></i>
+              </div>
+              <div>
+                <p class="font-medium text-gray-800">Маммография</p>
+                <p class="text-sm text-gray-600">После менопаузы рекомендуется проходить ежегодно</p>
+              </div>
+            </div>
+            <div class="flex gap-3 p-3 bg-green-50 rounded-lg">
+              <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                <i data-feather="check-circle" class="w-5 h-5 text-green-600"></i>
+              </div>
+              <div>
+                <p class="font-medium text-gray-800">Самообследование</p>
+                <p class="text-sm text-gray-600">Продолжайте делать ежемесячно</p>
+              </div>
+            </div>
+            <div class="flex gap-3 p-3 bg-blue-50 rounded-lg">
+              <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <i data-feather="target" class="w-5 h-5 text-blue-600"></i>
+              </div>
+              <div>
+                <p class="font-medium text-gray-800">Здоровый образ жизни</p>
+                <p class="text-sm text-gray-600">Контролируйте вес, занимайтесь спортом</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Напоминание о маммографии -->
+        <div class="card p-4 bg-orange-50 border-orange-200">
+          <div class="flex items-start gap-3">
+            <div class="p-2 rounded-full bg-orange-100 text-orange-600 pulse"><i data-feather="bell" class="w-5 h-5"></i></div>
+            <div class="flex-1">
+              <p class="font-medium text-orange-800">Напоминание о маммографии</p>
+              <p class="text-sm text-orange-700" id="mammogram-reminder">Проверьте, когда вы проходили последнюю маммографию.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="text-center">
@@ -662,7 +762,7 @@
         <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><i data-feather="mail" class="w-5 h-5 text-secondary"></i> Контакты</h3>
         <div class="space-y-2 text-gray-600">
             <p>Instagram: <a href="https://instagram.com/qyzqylttaspa" target="_blank" class="text-primary font-medium">@qyzqylttaspa</a></p>
-            <p>Email: <a href="/cdn-cgi/l/email-protection#106475717d7d717d7d7f73716275507f65647c7f7f7b3e737f7d" class="text-primary font-medium"><span class="__cf_email__" data-cfemail="295d4c484444484444464a485b4c69465c5d45464642074a4644">[email&#160;protected]</span></a></p>
+            <p>Email: <a href="/cdn-cgi/l/email-protection#126677737f7f737f7f7d71736077527d67667e7d7d793c717d7f" class="text-primary font-medium"><span class="__cf_email__" data-cfemail="80f4e5e1edede1ededefe3e1f2e5c0eff5f4ecefefebaee3efed">[email&#160;protected]</span></a></p>
         </div>
       </div>
     </div>
@@ -777,7 +877,7 @@ const clinicsData = [
 // ========== КОНТЕНТ УРОКОВ (30 дней) ==========
 const LESSONS = [
   { id: 1, title: "Добро пожаловать!", xp: 100, content: "<h3>Добро пожаловать в 30-дневную программу MammoCare!</h3><p>Вы сделали важный шаг, заботясь о своём здоровье. В течение следующих 30 дней вы узнаете всё о здоровье груди и профилактике рака.</p><h4>Сегодня:</h4><ol><li>Узнайте свой уровень риска</li><li>Настройте трекер цикла</li><li>Начните первый урок</li></ol>", quiz: null },
-  { id: 2, title: "Самообследование", xp: 150, content: "<h3>Как правильно проводить самообследование</h3><p><strong>Когда:</strong> 5-7 день цикла, после душа</p><h4>Шаг 1: Осмотр</h4><p>Встаньте перед зеркалом. Осмотрите грудь на наличие изменений формы, размера, кожи.</p><h4>Шаг 2: Пальпация</h4><p>Используйте подушечки пальцев, двигаясь по спирали от подмышки к соску.</p><h4>Шаг 3: Проверка сосков</h4><p>Сожмите сосок, проверьте на выделения.</p>", quiz: [{ q: "Когда лучше делать самообследование?", options: ["Любой день", "5-7 день цикла", "Во время месячных"], answer: 1 }] },
+  { id: 2, title: "Самообследование", xp: 150, content: "<h3>Как правильно проводить самообследование</h3><p><strong>Когда:</strong> 5-7 день цикла, после душа</p><div class=\"mb-4\"><div style=\"position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;\"><iframe style=\"position:absolute;top:0;left:0;width:100%;height:100%;\" src=\"https://www.youtube.com/embed/Y5y6hrHbZtU\" title=\"Самообследование груди\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div><p class=\"text-sm text-gray-500 mt-2 text-center\">Видео: Как проводить самообследование молочной железы</p></div><h4>Шаг 1: Осмотр</h4><p>Встаньте перед зеркалом. Осмотрите грудь на наличие изменений формы, размера, кожи.</p><h4>Шаг 2: Пальпация</h4><p>Используйте подушечки пальцев, двигаясь по спирали от подмышки к соску.</p><h4>Шаг 3: Проверка сосков</h4><p>Сожмите сосок, проверьте на выделения.</p><div class=\"mt-4 p-4 bg-yellow-50 rounded-lg\"><p class=\"text-sm text-yellow-800\"><strong>Важно:</strong> Самообследование не заменяет маммографию и УЗИ. При любых изменениях обратитесь к врачу!</p></div>", quiz: [{ q: "Когда лучше делать самообследование?", options: ["Любой день", "5-7 день цикла", "Во время месячных"], answer: 1 }] },
   { id: 3, title: "Менструальный цикл", xp: 50, content: "<h3>Понимание менструального цикла</h3><p>Средний цикл — 28 дней. Каждая фаза влияет на ткани груди.</p><h4>Фолликулярная фаза (1-14 дни)</h4><p>Растёт уровень эстрогена. Грудь может быть более чувствительной.</p><h4>Овуляция (14 день)</h4><p>Выход яйцеклетки. Максимальный уровень эстрогена.</p><h4>Лютеиновая фаза (15-28 дни)</h4><p>Растёт прогестерон. Возможен дискомфорт в груди.</p>", quiz: [{ q: "Сколько дней длится средний цикл?", options: ["14", "28", "35"], answer: 1 }] },
   { id: 4, title: "Анатомия груди", xp: 50, content: "<h3>Структура тканей груди</h3><p>Грудь состоит из долек, протоков и жировой ткани.</p><h4>Дольки</h4><p>Производят молоко при грудном вскармливании.</p><h4>Протоки</h4><p>Переносят молоко к соску.</p><h4>Жировая ткань</h4><p>Определяет размер груди.</p>", quiz: null },
   { id: 5, title: "Факторы риска", xp: 50, content: "<h3>Что повышает риск</h3><p>Знание факторов риска помогает принимать профилактические меры.</p><h4>Немодифицируемые:</h4><ul><li>Возраст (риск растёт после 40)</li><li>Генетика (BRCA1, BRCA2)</li><li>Семейная история</li></ul><h4>Модифицируемые:</h4><ul><li>Ожирение</li><li>Курение</li><li>Алкоголь</li><li>Малоподвижный образ жизни</li></ul>", quiz: null },
@@ -1309,18 +1409,76 @@ function updateHomeXP() {
 }
 
 // ========== CYCLE ==========
+let cycleMode = 'menstrual'; // 'menstrual' or 'menopause'
+
 function loadCycleData() {
     const saved = loadLocal('cycleData');
     if (saved) {
         cycleData = saved;
-        cycleData.lastPeriod = new Date(cycleData.lastPeriod);
+        if (cycleData.lastPeriod) {
+            cycleData.lastPeriod = new Date(cycleData.lastPeriod);
+        }
     }
+    cycleMode = loadLocal('cycleMode') || 'menstrual';
     return cycleData;
 }
 
 function saveCycleDataFn(data) {
     cycleData = data;
-    saveLocal('cycleData', { lastPeriod: data.lastPeriod.toISOString(), cycleLength: data.cycleLength, periodLength: data.periodLength });
+    if (cycleMode === 'menstrual') {
+        saveLocal('cycleData', { lastPeriod: data.lastPeriod.toISOString(), cycleLength: data.cycleLength, periodLength: data.periodLength });
+    } else {
+        saveLocal('cycleData', { menopauseDate: data.menopauseDate });
+    }
+    saveLocal('cycleMode', cycleMode);
+}
+
+function setCycleMode(mode) {
+    cycleMode = mode;
+    saveLocal('cycleMode', mode);
+
+    const btnMenstrual = $('mode-menstrual');
+    const btnMenopause = $('mode-menopause');
+    const menstrualSettings = $('menstrual-settings');
+    const menopauseSettings = $('menopause-settings');
+
+    if (mode === 'menstrual') {
+        btnMenstrual.className = 'flex-1 py-2 px-4 border-2 border-primary bg-pink-50 text-primary rounded-lg font-medium';
+        btnMenopause.className = 'flex-1 py-2 px-4 border-2 border-gray-200 text-gray-600 rounded-lg font-medium hover:border-gray-300';
+        if (menstrualSettings) menstrualSettings.classList.remove('hidden');
+        if (menopauseSettings) menopauseSettings.classList.add('hidden');
+    } else {
+        btnMenstrual.className = 'flex-1 py-2 px-4 border-2 border-gray-200 text-gray-600 rounded-lg font-medium hover:border-gray-300';
+        btnMenopause.className = 'flex-1 py-2 px-4 border-2 border-primary bg-blue-50 text-primary rounded-lg font-medium';
+        if (menstrualSettings) menstrualSettings.classList.add('hidden');
+        if (menopauseSettings) menopauseSettings.classList.remove('hidden');
+    }
+}
+
+function updateMenopauseUI() {
+    if (cycleMode !== 'menopause' || !cycleData || !cycleData.menopauseDate) return;
+
+    const menopauseDate = new Date(cycleData.menopauseDate);
+    const today = new Date();
+    const yearsSince = Math.floor((today - menopauseDate) / (365.25 * 24 * 60 * 60 * 1000));
+    const monthsSince = Math.floor((today - menopauseDate) / (30.44 * 24 * 60 * 60 * 1000));
+
+    const durationEl = $('menopause-duration');
+    if (durationEl) {
+        if (yearsSince > 0) {
+            durationEl.textContent = `Менопауза наступила ${yearsSince} ${getYearWord(yearsSince)} назад`;
+        } else if (monthsSince > 0) {
+            durationEl.textContent = `Менопауза наступила ${monthsSince} мес. назад`;
+        } else {
+            durationEl.textContent = 'Менопауза наступила недавно';
+        }
+    }
+}
+
+function getYearWord(n) {
+    if (n === 1) return 'год';
+    if (n >= 2 && n <= 4) return 'года';
+    return 'лет';
 }
 
 function getCycleDay(date = new Date()) {
@@ -1345,13 +1503,32 @@ function getDayPhase(date) {
 
 function updateCycleUI() {
   loadCycleData();
-  if (!cycleData) {
+
+  // Установить режим кнопок
+  setCycleMode(cycleMode);
+
+  if (!cycleData || !cycleData.lastPeriod && !cycleData.menopauseDate) {
       show($('cycle-setup'));
       hide($('cycle-calendar-container'));
       return;
   }
+
   hide($('cycle-setup'));
   show($('cycle-calendar-container'));
+
+  // Показать нужный режим
+  const menstrualView = $('menstrual-view');
+  const menopauseView = $('menopause-view');
+
+  if (cycleMode === 'menopause') {
+    if (menstrualView) menstrualView.classList.add('hidden');
+    if (menopauseView) menopauseView.classList.remove('hidden');
+    updateMenopauseUI();
+    return;
+  } else {
+    if (menstrualView) menstrualView.classList.remove('hidden');
+    if (menopauseView) menopauseView.classList.add('hidden');
+  }
 
   const today = new Date();
   const cycleDay = getCycleDay(today);
@@ -1739,10 +1916,17 @@ document.addEventListener('DOMContentLoaded', () => {
   $('recalculate-risk')?.addEventListener('click', () => show($('risk-modal')));
 
   $('save-cycle-settings')?.addEventListener('click', () => {
-    const val = $('setup-last-period').value;
-    if(!val) return alert('Введите дату');
-    saveCycleDataFn({ lastPeriod: new Date(val), cycleLength: parseInt($('setup-cycle-length').value) || 28, periodLength: parseInt($('setup-period-length').value) || 5 });
-    updateCycleUI();
+    if (cycleMode === 'menopause') {
+      const val = $('setup-menopause-date').value;
+      if (!val) return alert('Введите дату наступления менопаузы');
+      saveCycleDataFn({ menopauseDate: val });
+      updateCycleUI();
+    } else {
+      const val = $('setup-last-period').value;
+      if (!val) return alert('Введите дату');
+      saveCycleDataFn({ lastPeriod: new Date(val), cycleLength: parseInt($('setup-cycle-length').value) || 28, periodLength: parseInt($('setup-period-length').value) || 5 });
+      updateCycleUI();
+    }
   });
 
   $('reset-cycle-btn')?.addEventListener('click', resetCycleData);
