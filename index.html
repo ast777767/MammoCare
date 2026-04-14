@@ -2470,7 +2470,40 @@ document.addEventListener('DOMContentLoaded', () => {
     delete window.__iframeHighlightCleanup;
   };
 })();
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDS9_Ev32yr6q4801I5YOxzaFezW7SEYg4",
+  authDomain: "mammocare.firebaseapp.com",
+  projectId: "mammocare",
+  storageBucket: "mammocare.firebasestorage.app",
+  messagingSenderId: "440171934985",
+  appId: "1:440171934985:web:dab31a294e12636fd94fd8",
+  measurementId: "G-Z0GHR0G4TK"
+};
+
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
+
+// Запрос уведомлений
+async function initNotifications() {
+  const permission = await Notification.requestPermission();
+  if (permission === "granted") {
+    const token = await getToken(messaging, {
+      vapidKey: "BF0-LZVn9xMFGyJdtSzATl1y25CyxOd1eldpQ43zzY57OImPeE0FhMKFT3dNsYbnwnnALkf_k-LQtgwbVBQW5Vs"
+    });
+
+    console.log("TOKEN:", token);
+  } else {
+    console.log("Нет доступа к уведомлениям");
+  }
+}
+
+initNotifications();
+</script>
 </script>
 </body>
 </html>
