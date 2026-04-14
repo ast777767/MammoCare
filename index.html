@@ -2481,48 +2481,55 @@ document.addEventListener('DOMContentLoaded', () => {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
-
+// ===== FIREBASE =====
 const firebaseConfig = {
   apiKey: "AIzaSyDS9_Ev32yr6q4801I5YOxzaFezW7SEYg4",
   authDomain: "mammocare.firebaseapp.com",
   projectId: "mammocare",
   storageBucket: "mammocare.firebasestorage.app",
   messagingSenderId: "440171934985",
-  appId: "1:440171934985:web:dab31a294e12636fd94fd8",
-  measurementId: "G-Z0GHR0G4TK"
+  appId: "1:440171934985:web:dab31a294e12636fd94fd8"
 };
-
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
-
-// ✅ ВАЖНО — через window
+// ===== КНОПКА =====
 window.enableNotifications = async function () {
   const permission = await Notification.requestPermission();
-
   if (permission !== "granted") {
     alert("Разрешение отклонено");
     return;
   }
-
   try {
     const token = await getToken(messaging, {
       vapidKey: "BF0-LZVn9xMFGyJdtSzATl1y25CyxOd1eldpQ43zzY57OImPeE0FhMKFT3dNsYbnwnnALkf_k-LQtgwbVBQW5Vs"
     });
-
     console.log("TOKEN:", token);
     alert("Уведомления включены ✅");
-  } catch (err) {
-    console.error("Ошибка токена:", err);
+    startLocalReminders();
+  } catch (e) {
+    console.error(e);
   }
 };
-
-// уведомления когда сайт открыт
+// ===== PUSH (когда сайт открыт) =====
 onMessage(messaging, (payload) => {
-  new Notification(payload.notification.title, {
-    body: payload.notification.body
-  });
-
+  showNotification(
+    payload.notification?.title || "MammoCare",
+    payload.notification?.body || ""
+  );
+});
+// ===== ПРОСТОЕ УВЕДОМЛЕНИЕ =====
+function showNotification(title, body) {
+  if (Notification.permission === "granted") {
+    new Notification(title, { body });
+  }
+}
 // ===== ЛОКАЛЬНЫЕ НАПОМИНАНИЯ =====
+function startLocalReminders() {
+  scheduleDailyReminder();
+  scheduleMonthlyReminder();
+  setInterval(checkCycleReminder, 21600000);
+}
+// каждый день в 20:00
 function scheduleDailyReminder() {
   setInterval(() => {
     const now = new Date();
@@ -2531,7 +2538,7 @@ function scheduleDailyReminder() {
     }
   }, 60000);
 }
-
+// 5 число месяца в 10:00
 function scheduleMonthlyReminder() {
   setInterval(() => {
     const now = new Date();
@@ -2540,32 +2547,21 @@ function scheduleMonthlyReminder() {
     }
   }, 60000);
 }
-
-// ===== ЦИКЛ =====
+// по циклу
 function checkCycleReminder() {
   const cycleDay = parseInt(localStorage.getItem("cycleDay"));
-
   if (cycleDay >= 5 && cycleDay <= 7) {
     showNotification("Важно 💗", "Оптимальный день для самообследования");
   }
 }
-
-setInterval(checkCycleReminder, 21600000);
-
-// ===== ПРИЁМ PUSH (из Firebase) =====
-onMessage(messaging, (payload) => {
-  new Notification(payload.notification.title, {
-    body: payload.notification.body
-  });
-});
-
 // ===== PWA =====
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./service-worker.js')
     .then(() => console.log("SW registered"))
     .catch(err => console.log("SW error", err));
 }
-
 </script>
-  </body>
+</body>
 </html>
+
+
