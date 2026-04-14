@@ -2006,92 +2006,99 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize Firebase on app load
   async function initFirebaseMessaging() {
-    if (typeof firebase !== 'undefined' && firebase.messaging) {
-      try {
-        const messaging = firebase.messaging();
-        // Register service worker
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/firebase-messaging-sw.js')
-            .then(reg => console.log('Service Worker registered'))
-            .catch(err => console.log('SW registration failed:', err));
-        }
-        return messaging;
-      } catch (e) {
-        console.log('Firebase messaging not available:', e);
-        return null;
-      }
+    if (typeof firebase === 'undefined' || !firebase.messaging) {
+      console.log('Firebase SDK not loaded yet');
+      return null;
     }
-    return null;
+
+    try {
+      const messaging = firebase.messaging();
+      if ('serviceWorker' in navigator) {
+        try {
+          const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+          console.log('Service Worker registered:', reg);
+        } catch (swErr) {
+          console.log('SW registration failed:', swErr);
+        }
+      }
+      return messaging;
+    } catch (e) {
+      console.log('Firebase messaging not available:', e);
+      return null;
+    }
   }
 
   // Enable notifications function
-  async function enableNotifications() {
-    const btn = event.target;
-    btn.disabled = true;
-    btn.textContent = 'Загрузка...';
+  window.enableNotifications = async function(btn) {
+    if (!btn) btn = event?.target;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Загрузка...';
+    }
 
-    // Check browser support
     if (!('Notification' in window)) {
       alert('Ваш браузер не поддерживает уведомления');
-      btn.textContent = 'Включить напоминания';
-      btn.disabled = false;
+      if (btn) {
+        btn.textContent = 'Включить напоминания';
+        btn.disabled = false;
+      }
       return;
     }
 
-    // Request permission
     try {
       const permission = await Notification.requestPermission();
 
       if (permission === 'granted') {
         notificationPermission = 'granted';
-
-        // Save to localStorage
         localStorage.setItem('notificationsEnabled', 'true');
         localStorage.setItem('notificationPermissionDate', new Date().toISOString());
 
-        // Try Firebase messaging
         const messaging = await initFirebaseMessaging();
 
         if (messaging) {
           try {
-            const token = await messaging.getToken();
-            console.log('FCM Token:', token);
+            const token = await messaging.getToken({
+              vapidKey: 'BF0-LZVn9xMFGyJdtSzATl1y25CyxOd1eldpQ43zzY57OImPeE0FhMKFT3dNsYbnwnnALkf_k-LQtgwbVBQW5Vs'
+            });
+            console.log('FCM Token obtained:', token);
             localStorage.setItem('fcmToken', token);
-
-            // Send token to server (you would implement this)
-            // sendTokenToServer(token);
           } catch (tokenErr) {
             console.log('Could not get FCM token:', tokenErr);
           }
         }
 
-        // Show success notification
         new Notification('MammoCare', {
           body: 'Уведомления включены! Теперь вы будете получать напоминания о самообследовании.',
           icon: 'icon-192.png',
           tag: 'welcome-notification'
         });
 
-        // Update button state
-        btn.textContent = '✓ Уведомления включены';
-        btn.className = 'w-full py-3 bg-green-500 text-white rounded-lg cursor-not-allowed';
+        if (btn) {
+          btn.textContent = '✓ Уведомления включены';
+          btn.className = 'w-full py-3 bg-green-500 text-white rounded-lg cursor-not-allowed';
+        }
 
-        // Show success message
-        alert('Отлично! Уведомления успешно включены. Вы будете получать напоминания о самообследовании и других важных событиях.');
+        alert('Отлично! Уведомления успешно включены.');
 
       } else if (permission === 'denied') {
-        alert('Вы заблокировали уведомления. Чтобы включить их, измените настройки браузера и разрешите уведомления для этого сайта.');
-        btn.textContent = 'Включить напоминания';
-        btn.disabled = false;
+        alert('Вы заблокировали уведомления. Измените настройки браузера.');
+        if (btn) {
+          btn.textContent = 'Включить напоминания';
+          btn.disabled = false;
+        }
       } else {
-        btn.textContent = 'Включить напоминания';
-        btn.disabled = false;
+        if (btn) {
+          btn.textContent = 'Включить напоминания';
+          btn.disabled = false;
+        }
       }
     } catch (error) {
       console.error('Error enabling notifications:', error);
-      alert('Произошла ошибка при включении уведомлений. Попробуйте ещё раз.');
-      btn.textContent = 'Включить напоминания';
-      btn.disabled = false;
+      alert('Произошла ошибка при включении уведомлений.');
+      if (btn) {
+        btn.textContent = 'Включить напоминания';
+        btn.disabled = false;
+      }
     }
   }
 
@@ -2107,15 +2114,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Check status after page loads
   checkNotificationStatus();
-});
-</script>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script>
+  <script>
   // Initialize Firebase if not already initialized
   if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp({
