@@ -2560,6 +2560,67 @@ if ('serviceWorker' in navigator) {
     .then(() => console.log("SW registered"))
     .catch(err => console.log("SW error", err));
 }
+  // Функция для включения уведомлений
+async function enableNotifications() {
+    // Проверяем поддержку Notification API
+    if (!('Notification' in window)) {
+        alert('Ваш браузер не поддерживает уведомления');
+        return;
+    }
+
+    // Запрашиваем разрешение
+    const permission = await Notification.requestPermission();
+    
+    if (permission === 'granted') {
+        // Сохраняем статус в localStorage
+        localStorage.setItem('notificationsEnabled', 'true');
+        
+        // Показываем тестовое уведомление
+        new Notification('MammoCare', {
+            body: 'Уведомления включены! Теперь вы будете получать напоминания.',
+            icon: 'icon-192.png'
+        });
+        
+        // Планируем периодические напоминания
+        scheduleReminder();
+    } else {
+        alert('Для работы уведомлений необходимо разрешение браузера');
+    }
+}
+
+// Проверяем при загрузке
+function checkNotificationPermission() {
+    if (localStorage.getItem('notificationsEnabled') === 'true' && 
+        Notification.permission === 'granted') {
+        scheduleReminder();
+    }
+}
+
+// Планирование напоминания
+function scheduleReminder() {
+    // Проверяем каждый час (в реальном приложении используйте сервис-воркер)
+    setInterval(() => {
+        if (Notification.permission === 'granted') {
+            // Здесь можно добавить логику проверки дней цикла
+            // и показывать уведомления о самообследовании
+            checkAndNotify();
+        }
+    }, 3600000); // 1 час
+}
+
+// Проверка и уведомление
+function checkAndNotify() {
+    const lastExam = localStorage.getItem('lastExamDate');
+    const now = new Date();
+    
+    if (!lastExam) {
+        // Первое напоминание о самообследовании
+        new Notification('MammoCare - Напоминание', {
+            body: 'Не забудьте провести самообследование груди!',
+            icon: 'icon-192.png'
+        });
+    }
+}
 </script>
 <button onclick="enableNotifications()" style="
   padding: 12px 20px;
@@ -2571,6 +2632,7 @@ if ('serviceWorker' in navigator) {
 ">
   🔔 Получать уведомления
 </button>
+
 </body>
 </html>
 
