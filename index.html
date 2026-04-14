@@ -2479,8 +2479,6 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 <!-- Firebase + Notifications + PWA -->
 <script type="module">
-
-// ===== FIREBASE =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
@@ -2490,14 +2488,15 @@ const firebaseConfig = {
   projectId: "mammocare",
   storageBucket: "mammocare.firebasestorage.app",
   messagingSenderId: "440171934985",
-  appId: "1:440171934985:web:dab31a294e12636fd94fd8"
+  appId: "1:440171934985:web:dab31a294e12636fd94fd8",
+  measurementId: "G-Z0GHR0G4TK"
 };
 
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-// ===== ВКЛЮЧЕНИЕ УВЕДОМЛЕНИЙ =====
-async function enableNotifications() {
+// ✅ ВАЖНО — через window
+window.enableNotifications = async function () {
   const permission = await Notification.requestPermission();
 
   if (permission !== "granted") {
@@ -2505,26 +2504,23 @@ async function enableNotifications() {
     return;
   }
 
-  const token = await getToken(messaging, {
-    vapidKey: "BF0-LZVn9xMFGyJdtSzATl1y25CyxOd1eldpQ43zzY57OImPeE0FhMKFT3dNsYbnwnnALkf_k-LQtgwbVBQW5Vs"
-  });
-
-  console.log("TOKEN:", token);
-  alert("Уведомления включены ✅");
-
-  scheduleDailyReminder();
-  scheduleMonthlyReminder();
-}
-
-// ===== ПОКАЗ УВЕДОМЛЕНИЯ =====
-function showNotification(title, body) {
-  if (Notification.permission === "granted") {
-    new Notification(title, {
-      body: body,
-      icon: "https://cdn-icons-png.flaticon.com/512/2966/2966480.png"
+  try {
+    const token = await getToken(messaging, {
+      vapidKey: "BF0-LZVn9xMFGyJdtSzATl1y25CyxOd1eldpQ43zzY57OImPeE0FhMKFT3dNsYbnwnnALkf_k-LQtgwbVBQW5Vs"
     });
+
+    console.log("TOKEN:", token);
+    alert("Уведомления включены ✅");
+  } catch (err) {
+    console.error("Ошибка токена:", err);
   }
-}
+};
+
+// уведомления когда сайт открыт
+onMessage(messaging, (payload) => {
+  new Notification(payload.notification.title, {
+    body: payload.notification.body
+  });
 
 // ===== ЛОКАЛЬНЫЕ НАПОМИНАНИЯ =====
 function scheduleDailyReminder() {
