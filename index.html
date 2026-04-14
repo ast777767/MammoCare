@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ec4899">
+<link rel="apple-touch-icon" href="icon-192.png">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MammoCare — Здоровье груди</title>
@@ -2590,6 +2593,56 @@ async function enableNotifications() {
     alert("Вы запретили уведомления");
   }
 }
+</script>
+  <script>
+// ===== REGISTRATION PWA =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log("SW registered"))
+      .catch(err => console.log("SW error", err));
+  });
+}
+
+// ===== FIREBASE PUSH =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDS9_Ev32yr6q4801I5YOxzaFezW7SEYg4",
+  authDomain: "mammocare.firebaseapp.com",
+  projectId: "mammocare",
+  storageBucket: "mammocare.firebasestorage.app",
+  messagingSenderId: "440171934985",
+  appId: "1:440171934985:web:dab31a294e12636fd94fd8",
+  measurementId: "G-Z0GHR0G4TK"
+};
+
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
+
+// ===== КНОПКА УВЕДОМЛЕНИЙ =====
+async function enableNotifications() {
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") {
+    alert("Разрешение отклонено");
+    return;
+  }
+
+  const token = await getToken(messaging, {
+    vapidKey: "BF0-LZVn9xMFGyJdtSzATl1y25CyxOd1eldpQ43zzY57OImPeE0FhMKFT3dNsYbnwnnALkf_k-LQtgwbVBQW5Vs"
+  });
+
+  console.log("TOKEN:", token);
+  alert("Уведомления включены");
+}
+
+// ===== УВЕДОМЛЕНИЯ ВНУТРИ САЙТА =====
+onMessage(messaging, (payload) => {
+  new Notification(payload.notification.title, {
+    body: payload.notification.body
+  });
+});
 </script>
 </body>
 </html>
