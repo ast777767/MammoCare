@@ -7,7 +7,8 @@ firebase.initializeApp({
   projectId: "mammocare",
   storageBucket: "mammocare.firebasestorage.app",
   messagingSenderId: "440171934985",
-  appId: "1:440171934985:web:dab31a294e12636fd94fd8"
+  appId: "1:440171934985:web:dab31a294e12636fd94fd8",
+  measurementId: "G-Z0GHR0G4TK"
 });
 
 const messaging = firebase.messaging();
