@@ -2115,8 +2115,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   checkNotificationStatus();
-  <script>
-  // Initialize Firebase if not already initialized
+});
+</script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+<script>
+  // Initialize Firebase
   if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp({
       apiKey: "AIzaSyDS9_Ev32yr6q4801I5YOxzaFezW7SEYg4",
@@ -3237,4 +3243,3 @@ function checkAndNotify() {
 </script>
 </body>
 </html>
-
