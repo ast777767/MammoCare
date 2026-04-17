@@ -930,117 +930,84 @@ const achievements = {
   health_champion: { id: "health_champion", title: "Чемпион здоровья", icon: "🏆", req: p => p.completedDays.length >= 30 }
 };
 
-<script>
-// ==================== ПОЛНАЯ БАЗА ПЕРЕВОДОВ ====================
+// ========== ПЕРЕВОДЫ ==========
 const translations = {
   ru: {
-    // Navigation
-    nav_home: "Главная", nav_learn: "Обучение", nav_articles: "Статьи",
-    nav_cycle: "Цикл", nav_clinics: "Клиники", nav_about: "О нас",
-    nav_account: "Аккаунт", nav_menu: "Меню",
-
-    // Modals & Buttons
-    self_exam: "Самообследование", self_exam_start: "Начать самообследование",
-    self_exam_close: "Закрыть", risk_calculate: "Рассчитать",
-    risk_skip: "Пропустить", risk_continue: "Продолжить",
-    risk_recalculate: "Пересчитать", risk_your_risk: "Ваш риск",
-    premium_title: "Premium возможности", premium_unlock: "Разблокируйте дополнительные функции!",
-    cycle_save: "Сохранить", cycle_reset: "Сбросить",
-    cycle_set_start: "Установить начало",
-
-    // Risk modal
-    risk_age: "Ваш возраст", risk_weight: "Вес (кг)", risk_height: "Рост (см)",
-    risk_family: "Наследственность", risk_family_none: "Нет",
-    risk_family_distant: "Дальние родственники", risk_family_close: "Мама/сестра",
-    risk_smoke: "Курение", risk_no_smoke: "Не курю", risk_quit: "Бросила", risk_yes_smoke: "Курю",
-    risk_symptoms: "Жалобы", risk_symptoms_none: "Нет",
-    risk_symptoms_discomfort: "Дискомфорт", risk_symptoms_pain: "Уплотнения/боль",
-
-    // Cycle
-    cycle_title: "Трекер цикла", cycle_period: "Период",
-    cycle_ovulation: "Овуляция", cycle_fertile: "Фертильные дни",
-    cycle_exam: "Осмотр", cycle_predict: "Предсказать",
-    cycle_menopause: "Менопауза", cycle_start: "Начало",
-    cycle_length: "Длина цикла", cycle_days: "дней",
-
-    // General
-    loading: "Загрузка...", success: "Успешно", error: "Ошибка",
-    save: "Сохранить", close: "Закрыть", cancel: "Отмена",
-    yes: "Да", no: "Нет", back: "Назад", next: "Далее",
-
-    // Auth
-    auth_login: "Вход", auth_register: "Регистрация",
-    auth_email: "Email", auth_password: "Пароль",
-    auth_name: "Имя", auth_confirm_password: "Подтвердите пароль",
-    auth_terms: "Я согласен с условиями использования и политикой конфиденциальности",
-    auth_login_btn: "Войти", auth_register_btn: "Зарегистрироваться",
-
-    // And so on for all other strings...
-    // (я добавил все ключи ниже в полном виде)
+    nav_home: "Главная", nav_learn: "Обучение", nav_articles: "Статьи", nav_cycle: "Цикл", nav_clinics: "Клиники", nav_about: "О нас", nav_account: "Аккаунт",
+    home_welcome: "Добро пожаловать в MammoCare", home_desc: "Осознание сегодня - может спаси жизнь завтра",
+    btn_cycle: "Трекер", btn_clinic: "Клиники", home_risk_label: "Ваш риск", recalc: "Пересчитать",
+    stats_title: "Статистика рака груди", stats_kz: "🇰🇿 Казахстан", stats_kz_desc: "место по заболеваемости среди женщин", stats_world: "🌍 В мире", stats_world_desc: "случаев ежегодно", stats_fact: "Раннее обнаружение повышает выживаемость до 98%",
+    useful_info_title: "Полезная информация", info_self_title: "Самообследование", info_self_desc: "Делайте это раз в месяц. Самообследование занимает 5 минут.", info_age_title: "Скрининг", info_age_desc: "Маммография рекомендована женщинам старше 30 лет.", link_all_articles: "Читать все статьи →",
+    articles_title: "Полезная информация",
+    risk_welcome: "Добро пожаловать!", risk_subtitle: "Ответьте на вопросы", risk_age: "Ваш возраст", risk_weight: "Вес (кг)", risk_height: "Рост (см)", risk_family: "Наследственность", risk_smoke: "Курение", risk_symptoms: "Жалобы",
+    opt_no: "Нет", opt_distant: "Дальние родственники", opt_close: "Мама/сестра", opt_no_smoke: "Не курю", opt_ex_smoke: "Бросила", opt_smoke: "Курю", opt_no_symptoms: "Нет", opt_discomfort: "Дискомфорт", opt_pain: "Уплотнения/боль",
+    btn_calc: "Рассчитать", btn_skip: "Пропустить", btn_continue: "Продолжить", btn_save: "Сохранить", btn_done: "Готово", btn_reset: "Сброс",
+    risk_low: "Низкий риск", risk_moderate: "Умеренный риск", risk_high: "Высокий риск",
+    risk_adv_low: "Продолжайте ЗОЖ.", risk_adv_mod: "Рекомендована консультация.", risk_adv_high: "Срочно к врачу.",
+    learn_title: "30-дневная программа", learn_desc: "Укрепите здоровье шаг за шагом", learn_info: "Один урок в 24 часа. Накапливайте XP.",
+    lesson_open: "Доступно", lesson_locked: "Заблокировано", lesson_completed: "Пройдено",
+    cycle_title: "Настройка трекера", cycle_menstrual: "Менструальный цикл", cycle_menopause: "Менопауза", cycle_date: "Дата последних месячных", cycle_menopause_date: "Дата наступления менопаузы", cycle_len: "Длина цикла (дни)", period_len: "Длина месячных (дни)", cycle_about_menopause: "О менопаузе", cycle_menopause_tip: "После менопаузы риск рака молочной железы увеличивается. Важно:", cycle_meno_mammo: "Регулярно проходить маммографию", cycle_meno_self: "Продолжать самообследование", cycle_meno_weight: "Поддерживать здоровый вес",
+    today: "Сегодня", day: "День", till_period: "до месячных", till_ovulation: "до овуляции",
+    exam_title: "Время самообследования!", exam_desc: "Оптимальный период (5-7 день).",
+    forecast: "Прогноз на 3 месяца",
+    clinics_title: "Клиники маммографии", clinics_desc: "Найдите ближайший центр в Астане.", list: "Список", filter_all: "Все", filter_public: "Гос.", filter_private: "Частные",
+    about_title: "О проекте MammoCare", about_desc: "Проект MammoCare был создан нашей командой девушек как ответ на одну из самых острых и недооценённых проблем здоровья женщин в Казахстане.", mission_title: "Миссия", mission_desc: "Снизить смертность от рака молочной железы за счёт раннего выявления, цифрового мониторинга здоровья и доступной профилактики.", contacts_title: "Контакты",
+    acc_welcome: "Привет,", acc_user: "Участник",
+    alert_exam: "Отлично!", alert_next_lesson: "Урок пройден! +{xp} XP. Следующий через 24 часа.", alert_time_left: "Ждите 24 часа.", alert_cycle_reset: "Данные цикла сброшены.",
+    card_cycle_day: "День цикла", card_next: "След. месячные", card_progress: "Прогресс", card_start_learning: "Начните курс",
+    config: "Настройте", legend_period: "Месячные", legend_ovulation: "Овуляция", edit_settings: "Изменить настройки",
+    menopause_active: "Активный режим", menopause_recommendations: "Рекомендации для вас", menopause_mammo: "Маммография", menopause_mammo_desc: "После менопаузы рекомендуется проходить ежегодно", menopause_self: "Самообследование", menopause_self_desc: "Продолжайте делать ежемесячно", menopause_lifestyle: "Здоровый образ жизни", menopause_lifestyle_desc: "Контролируйте вес, занимайтесь спортом", menopause_reminder: "Напоминание о маммографии", menopause_reminder_text: "Проверьте, когда вы проходили последнюю маммографию.",
+    self_exam_video: "Видео: Как проводить самообследование", self_exam_intro: "Посмотрите видео перед началом"
   },
-
   kz: {
-    nav_home: "Басты бет", nav_learn: "Оқу", nav_articles: "Мақалалар",
-    nav_cycle: "Цикл", nav_clinics: "Клиникалар", nav_about: "Біз туралы",
-    nav_account: "Аккаунт", nav_menu: "Мәзір",
-    self_exam: "Өзіндік тексеру", self_exam_start: "Өзіндік тексеруді бастау",
-    risk_calculate: "Есептеу", risk_skip: "Өткізу",
-    cycle_save: "Сақтау", cycle_reset: "Бастапқы",
-    // ... все остальные ключи (полный список ниже)
+    nav_home: "Басты", nav_learn: "Оқыту", nav_articles: "Мақалалар", nav_cycle: "Цикл", nav_clinics: "Клиникалар", nav_about: "Біз туралы", nav_account: "Аккаунт",
+    mob_menu: "Мәзір", home_welcome: "MammoCare қош келдіңіз", home_desc: "Сүт безі денсаулығын бақылаңыз.",
+    btn_cycle: "Трекер", btn_clinic: "Клиникалар", home_risk_label: "Тәуекел", recalc: "Қайта",
+    stats_title: "Статистика", stats_kz: "🇰🇿 Қазақстан", stats_kz_desc: "онкология бойынша орын", stats_world: "🌍 Әлемде", stats_world_desc: "жыл сайын", stats_fact: "Ерте анықтау = 98% сауығу",
+    useful_info_title: "Пайдалы білім", info_self_title: "Өзіндік тексеру", info_self_desc: "Айына бір рет. 5 минут.", info_age_title: "Скрининг", info_age_desc: "40 жастан маммография.", link_all_articles: "Мақалалар →",
+    articles_title: "Білім базасы",
+    risk_welcome: "Қош келдіңіз!", risk_subtitle: "Сұрақтарға жауап", risk_age: "Жас", risk_weight: "Салмақ (кг)", risk_height: "Бой (см)", risk_family: "Тұқым", risk_smoke: "Темекі", risk_symptoms: "Шағым",
+    opt_no: "Жоқ", opt_distant: "Алыс туыстар", opt_close: "Ана/әпке", opt_no_smoke: "Тартпаймын", opt_ex_smoke: "Тастадым", opt_smoke: "Тартамын", opt_no_symptoms: "Жоқ", opt_discomfort: "Жайсыздық", opt_pain: "Түйін",
+    btn_calc: "Есептеу", btn_skip: "Өткізу", btn_continue: "Жалғастыру", btn_save: "Сақтау", btn_done: "Дайын", btn_reset: "Тазалау",
+    risk_low: "Төмен", risk_moderate: "Орташа", risk_high: "Жоғары",
+    risk_adv_low: "Сау өмір.", risk_adv_mod: "Дәрігер кеңесі.", risk_adv_high: "Жедел дәрігер.",
+    cycle_title: "Баптау", cycle_menstrual: "Етеккір циклі", cycle_menopause: "Менопауза", cycle_date: "Соңғы етеккір", cycle_menopause_date: "Менопауза басталған күн", cycle_len: "Цикл (күн)", period_len: "Етеккір (күн)", cycle_about_menopause: "Менопауза туралы", cycle_menopause_tip: "Менопаузадан кейін сүт безі обырының қаупі артады. Маңызды:", cycle_meno_mammo: "Маммографиядан жыл сайын өту", cycle_meno_self: "Өзіндік тексеруді жалғастыру", cycle_meno_weight: "Денсаулықты сақтау",
+    today: "Бүгін", day: "Күн", till_period: "етеккірге", till_ovulation: "овуляцияға",
+    exam_title: "Тексеру уақыты!", exam_desc: "5-7 күн.",
+    forecast: "Болжам",
+    clinics_title: "Клиникалар", clinics_desc: "Астана картасы", list: "Тізім",
+    about_title: "Жоба туралы", about_desc: "Біз күресеміз.", mission_title: "Міндет", mission_desc: "Азаюы.", contacts_title: "Байланыс",
+    alert_exam: "Керемет!", alert_next_lesson: "Сабақ аяқталды! +{xp} XP.", alert_time_left: "24 сағат.", alert_cycle_reset: "Цикл тазаланды.",
+    card_cycle_day: "Цикл күні", card_next: "Келесі етеккір", card_progress: "Прогресс", card_start_learning: "Курсты бастаңыз",
+    config: "Баптау", legend_period: "Етеккір", legend_ovulation: "Овуляция", edit_settings: "Өзгерту",
+    menopause_active: "Белсенді режим", menopause_recommendations: "Сіз үшін ұсыныстар", menopause_mammo: "Маммография", menopause_mammo_desc: "Менопаузадан кейін жыл сайын өту ұсынылады", menopause_self: "Өзіндік тексеру", menopause_self_desc: "Ай сайын жалғастырыңыз", menopause_lifestyle: "Денсаулықты сақтау", menopause_lifestyle_desc: "Вес бақылау, спортпен айналысу", menopause_reminder: "Маммография ескертуі", menopause_reminder_text: "Соңғы маммографияңызды тексеріңіз.",
+    self_exam_video: "Видео: Өзіндік тексеру қалай жүргізіледі", self_exam_intro: "Бастамас бұрын видеоны көріңіз"
   },
-
   en: {
-    nav_home: "Home", nav_learn: "Learn", nav_articles: "Articles",
-    nav_cycle: "Cycle", nav_clinics: "Clinics", nav_about: "About",
-    nav_account: "Account", nav_menu: "Menu",
-    self_exam: "Self-Exam", self_exam_start: "Start Self-Exam",
-    risk_calculate: "Calculate", risk_skip: "Skip",
-    cycle_save: "Save", cycle_reset: "Reset",
-    // ... полный английский перевод
+    nav_home: "Home", nav_learn: "Learn", nav_articles: "Articles", nav_cycle: "Cycle", nav_clinics: "Clinics", nav_about: "About", nav_account: "Account",
+    mob_menu: "Menu", home_welcome: "Welcome to MammoCare", home_desc: "Monitor breast health.",
+    btn_cycle: "Tracker", btn_clinic: "Clinics", home_risk_label: "Risk", recalc: "Recalc",
+    stats_title: "Breast Cancer Statistics", stats_kz: "🇰🇿 Kazakhstan", stats_kz_desc: "rank in female oncology", stats_world: "🌍 Worldwide", stats_world_desc: "cases annually", stats_fact: "Early detection = 98% survival",
+    useful_info_title: "Useful Info", info_self_title: "Self-Exam", info_self_desc: "Do it monthly. 5 minutes.", info_age_title: "Screening", info_age_desc: "Mammography after 40.", link_all_articles: "All articles →",
+    articles_title: "Knowledge Base",
+    risk_welcome: "Welcome!", risk_subtitle: "Answer questions", risk_age: "Age", risk_weight: "Weight (kg)", risk_height: "Height (cm)", risk_family: "Heredity", risk_smoke: "Smoking", risk_symptoms: "Symptoms",
+    opt_no: "No", opt_distant: "Distant relatives", opt_close: "Mother/Sister", opt_no_smoke: "Non-smoker", opt_ex_smoke: "Ex-smoker", opt_smoke: "Smoker", opt_no_symptoms: "None", opt_discomfort: "Discomfort", opt_pain: "Lumps",
+    btn_calc: "Calculate", btn_skip: "Skip", btn_continue: "Continue", btn_save: "Save", btn_done: "Done", btn_reset: "Reset",
+    risk_low: "Low Risk", risk_moderate: "Moderate", risk_high: "High Risk",
+    risk_adv_low: "Healthy lifestyle.", risk_adv_mod: "Consult doctor.", risk_adv_high: "Urgent visit.",
+    cycle_title: "Setup", cycle_menstrual: "Menstrual Cycle", cycle_menopause: "Menopause", cycle_date: "Last Period", cycle_menopause_date: "Menopause Date", cycle_len: "Cycle (days)", period_len: "Period (days)", cycle_about_menopause: "About Menopause", cycle_menopause_tip: "After menopause, breast cancer risk increases. Important:", cycle_meno_mammo: "Regular mammography", cycle_meno_self: "Continue self-exam", cycle_meno_weight: "Maintain healthy weight",
+    today: "Today", day: "Day", till_period: "until period", till_ovulation: "until ovulation",
+    exam_title: "Self-exam time!", exam_desc: "Day 5-7.",
+    forecast: "Forecast",
+    clinics_title: "Clinics", clinics_desc: "Astana map", list: "List",
+    about_title: "About", about_desc: "We fight breast cancer.", mission_title: "Mission", mission_desc: "Reduce mortality.", contacts_title: "Contacts",
+    alert_exam: "Great!", alert_next_lesson: "Lesson done! +{xp} XP.", alert_time_left: "Wait 24h.", alert_cycle_reset: "Cycle data reset.",
+    card_cycle_day: "Cycle Day", card_next: "Next Period", card_progress: "Progress", card_start_learning: "Start Course",
+    config: "Configure", legend_period: "Period", legend_ovulation: "Ovulation", edit_settings: "Edit",
+    menopause_active: "Active Mode", menopause_recommendations: "Recommendations for you", menopause_mammo: "Mammography", menopause_mammo_desc: "Annual after menopause", menopause_self: "Self-Exam", menopause_self_desc: "Continue monthly", menopause_lifestyle: "Healthy Lifestyle", menopause_lifestyle_desc: "Control weight, exercise", menopause_reminder: "Mammography Reminder", menopause_reminder_text: "Check your last mammography date.",
+    self_exam_video: "Video: How to do self-exam", self_exam_intro: "Watch video before starting"
   }
 };
-
-// ==================== УЛУЧШЕННЫЕ ФУНКЦИИ ПЕРЕВОДА ====================
-let currentLang = localStorage.getItem('mammocare_lang') || 'ru';
-
-function t(key) {
-  return translations[currentLang]?.[key] || translations.ru[key] || key;
-}
-
-function applyTranslations() {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    const text = t(key);
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      el.placeholder = text;
-    } else {
-      el.textContent = text;
-    }
-  });
-
-  // Динамические обновления (модалки, кнопки и т.д.)
-  document.getElementById('auth-modal-title') && (document.getElementById('auth-modal-title').textContent = t('auth_login'));
-  // Добавь остальные динамические элементы по необходимости
-}
-
-function setLanguage(lang) {
-  currentLang = lang;
-  localStorage.setItem('mammocare_lang', lang);
-  applyTranslations();
-  updateLangFlag();
-}
-
-function updateLangFlag() {
-  const flag = document.getElementById('current-lang-flag');
-  if (flag) flag.textContent = currentLang === 'ru' ? '🇷🇺' : currentLang === 'kz' ? '🇰🇿' : '🇬🇧';
-}
-
-// Вызов при загрузке
-document.addEventListener('DOMContentLoaded', () => {
-  applyTranslations();
-  updateLangFlag();
-});
-</script>
 
 let currentLang = 'ru';
 
@@ -2033,140 +2000,7 @@ document.addEventListener('DOMContentLoaded', () => {
     bar.style.width = strength + '%';
     bar.style.background = strength < 50 ? '#ef4444' : strength < 100 ? '#f59e0b' : '#10b981';
   });
-
-  // ========== NOTIFICATIONS ==========
-  let notificationPermission = Notification.permission || 'default';
-
-  // Initialize Firebase on app load
-  async function initFirebaseMessaging() {
-    if (typeof firebase === 'undefined' || !firebase.messaging) {
-      console.log('Firebase SDK not loaded yet');
-      return null;
-    }
-
-    try {
-      const messaging = firebase.messaging();
-      if ('serviceWorker' in navigator) {
-        try {
-          const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-          console.log('Service Worker registered:', reg);
-        } catch (swErr) {
-          console.log('SW registration failed:', swErr);
-        }
-      }
-      return messaging;
-    } catch (e) {
-      console.log('Firebase messaging not available:', e);
-      return null;
-    }
-  }
-
-  // Enable notifications function
-  window.enableNotifications = async function(btn) {
-    if (!btn) btn = event?.target;
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Загрузка...';
-    }
-
-    if (!('Notification' in window)) {
-      alert('Ваш браузер не поддерживает уведомления');
-      if (btn) {
-        btn.textContent = 'Включить напоминания';
-        btn.disabled = false;
-      }
-      return;
-    }
-
-    try {
-      const permission = await Notification.requestPermission();
-
-      if (permission === 'granted') {
-        notificationPermission = 'granted';
-        localStorage.setItem('notificationsEnabled', 'true');
-        localStorage.setItem('notificationPermissionDate', new Date().toISOString());
-
-        const messaging = await initFirebaseMessaging();
-
-        if (messaging) {
-          try {
-            const token = await messaging.getToken({
-              vapidKey: 'BF0-LZVn9xMFGyJdtSzATl1y25CyxOd1eldpQ43zzY57OImPeE0FhMKFT3dNsYbnwnnALkf_k-LQtgwbVBQW5Vs'
-            });
-            console.log('FCM Token obtained:', token);
-            localStorage.setItem('fcmToken', token);
-          } catch (tokenErr) {
-            console.log('Could not get FCM token:', tokenErr);
-          }
-        }
-
-        new Notification('MammoCare', {
-          body: 'Уведомления включены! Теперь вы будете получать напоминания о самообследовании.',
-          icon: 'icon-192.png',
-          tag: 'welcome-notification'
-        });
-
-        if (btn) {
-          btn.textContent = '✓ Уведомления включены';
-          btn.className = 'w-full py-3 bg-green-500 text-white rounded-lg cursor-not-allowed';
-        }
-
-        alert('Отлично! Уведомления успешно включены.');
-
-      } else if (permission === 'denied') {
-        alert('Вы заблокировали уведомления. Измените настройки браузера.');
-        if (btn) {
-          btn.textContent = 'Включить напоминания';
-          btn.disabled = false;
-        }
-      } else {
-        if (btn) {
-          btn.textContent = 'Включить напоминания';
-          btn.disabled = false;
-        }
-      }
-    } catch (error) {
-      console.error('Error enabling notifications:', error);
-      alert('Произошла ошибка при включении уведомлений.');
-      if (btn) {
-        btn.textContent = 'Включить напоминания';
-        btn.disabled = false;
-      }
-    }
-  }
-
-  // Check notification status on page load
-  function checkNotificationStatus() {
-    if (localStorage.getItem('notificationsEnabled') === 'true' && Notification.permission === 'granted') {
-      const btn = document.querySelector('button[onclick="enableNotifications()"]');
-      if (btn) {
-        btn.textContent = '✓ Уведомления включены';
-        btn.className = 'w-full py-3 bg-green-500 text-white rounded-lg cursor-not-allowed';
-        btn.disabled = true;
-      }
-    }
-  }
-
-  checkNotificationStatus();
 });
-</script>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script>
-  // Initialize Firebase
-  if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-    firebase.initializeApp({
-      apiKey: "AIzaSyDS9_Ev32yr6q4801I5YOxzaFezW7SEYg4",
-      authDomain: "mammocare.firebaseapp.com",
-      projectId: "mammocare",
-      storageBucket: "mammocare.firebasestorage.app",
-      messagingSenderId: "440171934985",
-      appId: "1:440171934985:web:dab31a294e12636fd94fd8",
-      measurementId: "G-Z0GHR0G4TK"
-    });
-  }
 </script>
 
 
@@ -2726,67 +2560,6 @@ if ('serviceWorker' in navigator) {
     .then(() => console.log("SW registered"))
     .catch(err => console.log("SW error", err));
 }
-  // Функция для включения уведомлений
-async function enableNotifications() {
-    // Проверяем поддержку Notification API
-    if (!('Notification' in window)) {
-        alert('Ваш браузер не поддерживает уведомления');
-        return;
-    }
-
-    // Запрашиваем разрешение
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
-        // Сохраняем статус в localStorage
-        localStorage.setItem('notificationsEnabled', 'true');
-        
-        // Показываем тестовое уведомление
-        new Notification('MammoCare', {
-            body: 'Уведомления включены! Теперь вы будете получать напоминания.',
-            icon: 'icon-192.png'
-        });
-        
-        // Планируем периодические напоминания
-        scheduleReminder();
-    } else {
-        alert('Для работы уведомлений необходимо разрешение браузера');
-    }
-}
-
-// Проверяем при загрузке
-function checkNotificationPermission() {
-    if (localStorage.getItem('notificationsEnabled') === 'true' && 
-        Notification.permission === 'granted') {
-        scheduleReminder();
-    }
-}
-
-// Планирование напоминания
-function scheduleReminder() {
-    // Проверяем каждый час (в реальном приложении используйте сервис-воркер)
-    setInterval(() => {
-        if (Notification.permission === 'granted') {
-            // Здесь можно добавить логику проверки дней цикла
-            // и показывать уведомления о самообследовании
-            checkAndNotify();
-        }
-    }, 3600000); // 1 час
-}
-
-// Проверка и уведомление
-function checkAndNotify() {
-    const lastExam = localStorage.getItem('lastExamDate');
-    const now = new Date();
-    
-    if (!lastExam) {
-        // Первое напоминание о самообследовании
-        new Notification('MammoCare - Напоминание', {
-            body: 'Не забудьте провести самообследование груди!',
-            icon: 'icon-192.png'
-        });
-    }
-}
 </script>
 <button onclick="enableNotifications()" style="
   padding: 12px 20px;
@@ -2798,483 +2571,8 @@ function checkAndNotify() {
 ">
   🔔 Получать уведомления
 </button>
-
-
-<script>
-/**
- * Iframe 元素高亮注入脚本
- * 需要在目标网站中引入此脚本来支持跨域 iframe 高亮功能
- *
- * 使用方法：
- * 1. 将此脚本添加到目标网站的 HTML 中
- * 2. 或通过浏览器扩展、用户脚本等方式注入
- */
-
-(function () {
-  "use strict";
-
-  // 检查是否在 iframe 中
-  if (window.self === window.top) {
-    return; // 不在 iframe 中，不执行
-  }
-
-  // 检查是否已经初始化过
-  if (window.__iframeHighlightInitialized) {
-    return;
-  }
-  window.__iframeHighlightInitialized = true;
-  console.log("Iframe 高亮脚本已加载");
-
-  // 创建高亮覆盖层
-  var overlay = document.createElement("div");
-  overlay.id = "iframe-highlight-overlay";
-  overlay.style.cssText = "\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    pointer-events: none;\n    z-index: 999999;\n    overflow: hidden;\n  ";
-
-  // 创建悬停高亮框（虚线边框）
-  var highlightBox = document.createElement("div");
-  highlightBox.id = "iframe-highlight-box";
-  highlightBox.style.cssText = "\n    position: absolute;\n    border: 2px dashed #007AFF;\n    background: rgba(0, 122, 255, 0.08);\n    pointer-events: none;\n    display: none;\n    transition: all 0.1s ease;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);\n    border-radius: 2px;\n  ";
-
-  // 创建选中节点的常驻高亮框（实线边框）
-  var selectedBox = document.createElement("div");
-  selectedBox.id = "iframe-selected-box";
-  selectedBox.style.cssText = "\n    position: absolute;\n    border: 2px solid #007AFF;\n    pointer-events: none;\n    display: none;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 107, 53, 0.4);\n    border-radius: 2px;\n    z-index: 1000000;\n  ";
-
-  // 创建悬停标签显示
-  var tagLabel = document.createElement("div");
-  tagLabel.id = "iframe-tag-label";
-  tagLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 2px 6px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 2px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000001;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);\n    font-weight: 500;\n  ";
-
-  // 创建选中节点标签
-  var selectedLabel = document.createElement("div");
-  selectedLabel.id = "iframe-selected-label";
-  selectedLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 3px 8px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 3px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000002;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\n    font-weight: 600;\n  ";
-  overlay.appendChild(highlightBox);
-  overlay.appendChild(selectedBox);
-  overlay.appendChild(tagLabel);
-  overlay.appendChild(selectedLabel);
-  document.body.appendChild(overlay);
-
-  // 存储当前选中的元素
-  var selectedElement = null;
-  var highlightEnabled = false;
-
-  // 更新选中元素的高亮显示
-  function updateSelectedHighlight(element) {
-    console.log("updateSelectedHighlight called with:", element);
-    if (!element) {
-      selectedBox.style.display = "none";
-      selectedLabel.style.display = "none";
-      selectedElement = null;
-      console.log("Cleared selected highlight");
-      return;
-    }
-    selectedElement = element;
-    var rect = element.getBoundingClientRect();
-    console.log("Selected element rect:", rect);
-
-    // 更新选中高亮框位置
-    selectedBox.style.display = "block";
-    selectedBox.style.left = "".concat(rect.left - 2, "px");
-    selectedBox.style.top = "".concat(rect.top - 2, "px");
-    selectedBox.style.width = "".concat(rect.width + 4, "px");
-    selectedBox.style.height = "".concat(rect.height + 4, "px");
-
-    // 更新选中标签位置和内容
-    selectedLabel.style.display = "block";
-    selectedLabel.textContent = "\u2713 <".concat(element.tagName.toLowerCase(), ">");
-
-    // 计算标签位置，确保不超出视窗
-    var labelTop = rect.top - 28;
-    var labelLeft = rect.left;
-
-    // 如果标签会超出顶部，显示在元素下方
-    if (labelTop < 5) {
-      labelTop = rect.bottom + 5;
-    }
-
-    // 如果标签会超出右侧，向左调整
-    var labelWidth = selectedLabel.offsetWidth || 100; // 预估宽度
-    if (labelLeft + labelWidth > window.innerWidth - 10) {
-      labelLeft = window.innerWidth - labelWidth - 10;
-    }
-    selectedLabel.style.left = "".concat(Math.max(5, labelLeft), "px");
-    selectedLabel.style.top = "".concat(labelTop, "px");
-    console.log("Selected highlight positioned at:", {
-      left: selectedBox.style.left,
-      top: selectedBox.style.top,
-      width: selectedBox.style.width,
-      height: selectedBox.style.height
-    });
-  }
-  function getElementSelector(element) {
-    if (!(element instanceof Element)) throw new Error('Argument must be a DOM element');
-    var segments = [];
-    var current = element;
-    while (current !== document.documentElement) {
-      var selector = '';
-      // 优先检查唯一ID
-      if (current.id && document.querySelectorAll("#".concat(current.id)).length === 1) {
-        segments.unshift("#".concat(current.id));
-        break; // ID唯一，无需继续向上
-      }
-
-      // 生成类名选择器（取第一个有效类名）
-      var classes = Array.from(current.classList).filter(function (c) {
-        return !c.startsWith('js-');
-      });
-      var className = classes.length > 0 ? ".".concat(classes[0]) : '';
-
-      // 生成位置索引（nth-child）
-      var tag = current.tagName.toLowerCase();
-      if (!className) {
-        var siblings = Array.from(current.parentNode.children);
-        var index = siblings.findIndex(function (el) {
-          return el === current;
-        }) + 1;
-        selector = "".concat(tag, ":nth-child(").concat(index, ")");
-      } else {
-        selector = className;
-      }
-      segments.unshift(selector);
-      current = current.parentElement;
-    }
-
-    // 处理根元素
-    if (current === document.documentElement) {
-      segments.unshift('html');
-    }
-    return segments.join(' > ');
-  }
-
-  // 获取元素文本内容
-  function getElementText(element) {
-    var _element$textContent;
-    if (element.tagName === "INPUT") {
-      return element.value || element.placeholder || "";
-    }
-    if (element.tagName === "TEXTAREA") {
-      return element.value || element.placeholder || "";
-    }
-    var text = ((_element$textContent = element.textContent) === null || _element$textContent === void 0 ? void 0 : _element$textContent.trim()) || "";
-    return text.length > 50 ? text.substring(0, 50) + "..." : text;
-  }
-
-  // 获取元素属性信息
-  function getElementAttributes(element) {
-    var attrs = {};
-    for (var i = 0; i < element.attributes.length; i++) {
-      var attr = element.attributes[i];
-      attrs[attr.name] = attr.value;
-    }
-    return attrs;
-  }
-
-  // 鼠标悬停事件处理
-  function handleMouseOver(e) {
-    if (!highlightEnabled) return;
-    var target = e.target;
-    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
-      return;
-    }
-
-    // 避免高亮 html 和 body 元素
-    if (target === document.documentElement || target === document.body) {
-      return;
-    }
-
-    // 如果是已选中的元素，不显示悬停高亮
-    if (target === selectedElement) {
-      highlightBox.style.display = "none";
-      tagLabel.style.display = "none";
-      return;
-    }
-    var rect = target.getBoundingClientRect();
-    var selector = getElementSelector(target);
-    var text = getElementText(target);
-    var attributes = getElementAttributes(target);
-
-    // 更新悬停高亮框位置
-    highlightBox.style.display = "block";
-    highlightBox.style.left = "".concat(rect.left - 2, "px");
-    highlightBox.style.top = "".concat(rect.top - 2, "px");
-    highlightBox.style.width = "".concat(rect.width + 4, "px");
-    highlightBox.style.height = "".concat(rect.height + 4, "px");
-
-    // 更新标签位置和内容
-    tagLabel.style.display = "block";
-    tagLabel.textContent = "<".concat(target.tagName.toLowerCase(), ">");
-
-    // 计算标签位置，确保不超出视窗
-    var labelTop = rect.top - 22;
-    var labelLeft = rect.left;
-
-    // 如果标签会超出顶部，显示在元素下方
-    if (labelTop < 0) {
-      labelTop = rect.bottom + 5;
-    }
-
-    // 如果标签会超出右侧，向左调整
-    if (labelLeft + tagLabel.offsetWidth > window.innerWidth) {
-      labelLeft = window.innerWidth - tagLabel.offsetWidth - 5;
-    }
-    tagLabel.style.left = "".concat(Math.max(0, labelLeft), "px");
-    tagLabel.style.top = "".concat(labelTop, "px");
-
-    // 发送消息到父窗口
-    var elementInfo = {
-      tagName: target.tagName.toLowerCase(),
-      rect: {
-        left: rect.left,
-        top: rect.top,
-        right: rect.right,
-        bottom: rect.bottom,
-        width: rect.width,
-        height: rect.height,
-        x: rect.x,
-        y: rect.y
-      },
-      selector: selector,
-      text: text,
-      attributes: attributes,
-      url: window.location.href,
-      path: window.location.pathname,
-      timestamp: Date.now()
-    };
-    try {
-      window.parent.postMessage({
-        type: "iframe-element-hover",
-        data: elementInfo,
-        source: "iframe-highlight-injector"
-      }, "*");
-    } catch (error) {
-      console.warn("无法发送消息到父窗口:", error);
-    }
-  }
-
-  // 鼠标离开事件处理
-  function handleMouseOut(e) {
-    if (!highlightEnabled) return;
-    var relatedTarget = e.relatedTarget;
-
-    // 如果鼠标移动到高亮相关元素上，不隐藏高亮
-    if (relatedTarget && (relatedTarget === highlightBox || relatedTarget === tagLabel || relatedTarget === overlay || relatedTarget === selectedBox || relatedTarget === selectedLabel)) {
-      return;
-    }
-    highlightBox.style.display = "none";
-    tagLabel.style.display = "none";
-    try {
-      window.parent.postMessage({
-        type: "iframe-element-hover",
-        data: null,
-        source: "iframe-highlight-injector"
-      }, "*");
-    } catch (error) {
-      console.warn("无法发送消息到父窗口:", error);
-    }
-  }
-
-  // 点击事件处理
-  function handleClick(e) {
-    var target = e.target;
-    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
-      return;
-    }
-
-    // 避免处理 html 和 body 元素
-    if (target === document.documentElement || target === document.body) {
-      return;
-    }
-
-    // 检查是否是交互元素，这些元素需要保留默认行为
-    var isInteractiveElement = ['input', 'textarea', 'select', 'button', 'a'].includes(target.tagName.toLowerCase());
-
-    // 如果高亮功能启用，对于非交互元素阻止默认行为和事件传播
-    if (highlightEnabled) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    var rect = target.getBoundingClientRect();
-    var selector = getElementSelector(target);
-    var text = getElementText(target);
-    var attributes = getElementAttributes(target);
-    console.log("Element clicked:", {
-      tagName: target.tagName,
-      selector: selector,
-      rect: rect
-    });
-
-    // 立即更新选中高亮
-    updateSelectedHighlight(target);
-
-    // 隐藏悬停高亮，因为现在是选中状态
-    highlightBox.style.display = "none";
-    tagLabel.style.display = "none";
-    var elementInfo = {
-      tagName: target.tagName.toLowerCase(),
-      rect: {
-        left: rect.left,
-        top: rect.top,
-        right: rect.right,
-        bottom: rect.bottom,
-        width: rect.width,
-        height: rect.height,
-        x: rect.x,
-        y: rect.y
-      },
-      selector: selector,
-      text: text,
-      attributes: attributes,
-      url: window.location.href,
-      path: window.location.pathname,
-      timestamp: Date.now()
-    };
-    try {
-      window.parent.postMessage({
-        type: "iframe-element-click",
-        data: elementInfo,
-        source: "iframe-highlight-injector"
-      }, "*");
-    } catch (error) {
-      console.warn("无法发送消息到父窗口:", error);
-    }
-  }
-
-  // 监听来自父窗口的消息
-  function handleParentMessage(event) {
-    console.log("Received message from parent:", event.data);
-    if (event.data.type === "iframe-highlight-toggle") {
-      var enabled = event.data.enabled;
-      console.log("Highlight toggle:", enabled);
-      if (enabled) {
-        enableHighlight();
-      } else {
-        disableHighlight();
-      }
-    } else if (event.data.type === "enable-iframe-highlight") {
-      console.log("Enable iframe highlight");
-      enableHighlight();
-    } else if (event.data.type === "disable-iframe-highlight") {
-      console.log("Disable iframe highlight");
-      disableHighlight();
-    } else if (event.data.type === "toggle-iframe-highlight") {
-      var _enabled = event.data.enabled !== undefined ? event.data.enabled : !highlightEnabled;
-      console.log("Toggle iframe highlight to:", _enabled);
-      if (_enabled) {
-        enableHighlight();
-      } else {
-        disableHighlight();
-      }
-    } else if (event.data.type === "update-selected-element") {
-      var selector = event.data.selector;
-      console.log("Update selected element with selector:", selector);
-      if (selector) {
-        try {
-          var element = document.querySelector(selector);
-          console.log("Found element by selector:", element);
-          updateSelectedHighlight(element);
-        } catch (error) {
-          console.warn("Failed to select element:", error);
-          updateSelectedHighlight(null);
-        }
-      } else {
-        updateSelectedHighlight(null);
-      }
-    } else if (event.data.type === "clear-selected-element") {
-      console.log("Clear selected element");
-      updateSelectedHighlight(null);
-    }
-  }
-
-  // 启用高亮功能
-  function enableHighlight() {
-    console.log("Enabling highlight");
-    document.addEventListener("mouseover", handleMouseOver, true);
-    document.addEventListener("mouseout", handleMouseOut, true);
-    document.addEventListener("click", handleClick, true);
-    highlightEnabled = true;
-    overlay.style.display = "block";
-  }
-
-  // 禁用高亮功能
-  function disableHighlight() {
-    console.log("Disabling highlight");
-    highlightEnabled = false;
-    // 保持事件监听器，但通过 highlightEnabled 变量控制行为
-    // 这样可以保留选中状态的显示
-    highlightBox.style.display = "none";
-    tagLabel.style.display = "none";
-    // 不隐藏 selectedBox 和 selectedLabel，保留选中状态
-  }
-
-  // 完全禁用高亮功能（移除所有监听器）
-  function fullyDisableHighlight() {
-    console.log("Fully disabling highlight");
-    highlightEnabled = false;
-    document.removeEventListener("mouseover", handleMouseOver, true);
-    document.removeEventListener("mouseout", handleMouseOut, true);
-    document.removeEventListener("click", handleClick, true);
-    overlay.style.display = "none";
-    highlightBox.style.display = "none";
-    tagLabel.style.display = "none";
-    selectedBox.style.display = "none";
-    selectedLabel.style.display = "none";
-  }
-
-  // 添加事件监听
-  enableHighlight();
-  window.addEventListener("message", handleParentMessage);
-
-  // 暴露全局函数供外部调用
-  window.__iframeHighlightControl = {
-    enable: enableHighlight,
-    disable: disableHighlight,
-    fullyDisable: fullyDisableHighlight,
-    isEnabled: function isEnabled() {
-      return highlightEnabled;
-    },
-    getSelectedElement: function getSelectedElement() {
-      return selectedElement;
-    },
-    updateSelected: updateSelectedHighlight,
-    // 通过消息发送开关控制
-    sendToggleMessage: function sendToggleMessage(enabled) {
-      window.parent.postMessage({
-        type: 'iframe-highlight-status',
-        enabled: enabled || highlightEnabled,
-        source: 'iframe-highlight-injector'
-      }, '*');
-    }
-  };
-
-  // 通知父窗口脚本已加载
-  try {
-    window.parent.postMessage({
-      type: "iframe-highlight-ready",
-      data: {
-        url: window.location.href,
-        userAgent: navigator.userAgent,
-        timestamp: Date.now()
-      },
-      source: "iframe-highlight-injector"
-    }, "*");
-  } catch (error) {
-    console.warn("无法发送就绪消息到父窗口:", error);
-  }
-
-  // 清理函数
-  window.__iframeHighlightCleanup = function () {
-    fullyDisableHighlight();
-    window.removeEventListener("message", handleParentMessage);
-    if (overlay.parentElement) {
-      overlay.parentElement.removeChild(overlay);
-    }
-    delete window.__iframeHighlightInitialized;
-    delete window.__iframeHighlightCleanup;
-  };
-})();
-
-</script>
 </body>
 </html>
+
+
 
