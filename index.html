@@ -1,2578 +1,966 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ec4899">
-<link rel="apple-touch-icon" href="icon-192.png">
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MammoCare — Здоровье груди</title>
-  <meta name="description" content="Профилактика рака груди, трекер цикла, обучение и карта клиник Астаны." />
-  <meta name="theme-color" content="#ec4899" />
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#ec4899',
-            secondary: '#8b5cf6',
-            accent: '#06b6d4'
-          }
-        }
-      }
-    }
-  </script>
-
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/feather-icons"></script>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    * { font-family: 'Inter', sans-serif; }
-
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; }
-    ::-webkit-scrollbar-thumb { background: #ec4899; border-radius: 3px; }
-
-    .card { border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); background: #fff; border: 1px solid #f1f5f9; }
-    .nav-item { transition: .2s; cursor: pointer; }
-    .nav-item:hover { background: #fdf2f8; }
-    .nav-item.active { background: #fce7f3; color: #ec4899; font-weight: 600; }
-
-    #map { height: 400px; border-radius: 12px; z-index: 10; background: #e5e7eb; }
-
-    .view-section { display: none; }
-    .view-section.active { display: block; }
-
-    .calendar-day {
-      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-      border-radius: 50%; font-size: 14px; cursor: pointer; transition: all 0.2s;
-    }
-    .calendar-day:hover { background: #f3f4f6; }
-    .calendar-day.today { border: 2px solid #ec4899; font-weight: 600; }
-    .calendar-day.period { background: #fecaca; color: #dc2626; font-weight: 500; }
-    .calendar-day.ovulation { background: #ddd6fe; color: #7c3aed; font-weight: 500; }
-    .calendar-day.fertile { background: #ede9fe; color: #8b5cf6; }
-    .calendar-day.exam { background: #cffafe; color: #0891b2; }
-
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-    .modal-overlay.hidden { display: none; }
-
-    .lesson-card { transition: all 0.3s; position: relative; overflow: hidden; }
-    .lesson-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-    .lesson-card.locked { opacity: 0.7; filter: grayscale(0.5); cursor: not-allowed; }
-    .lesson-card.completed { border-color: #10b981; background: #f0fdf4; }
-
-    .xp-bar { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; }
-    .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #ec4899, #8b5cf6); transition: width 0.5s ease-out; }
-
-    .pulse { animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-
-    .slide-up { animation: slideUp 0.3s ease-out; }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    .achievement-unlock { animation: bounceIn 0.5s ease-out; }
-    @keyframes bounceIn { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-
-    .gradient-text { background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MammoCare — Здоровье груди</title>
+    <meta name="description" content="Профилактика рака груди, трекер цикла, обучение и карта клиник Астаны.">
+    <meta name="theme-color" content="#ec4899">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ec4899',
+                        secondary: '#8b5cf6',
+                        accent: '#06b6d4'
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ec4899; border-radius: 3px; }
+        .card { border-radius: 16px; box-shadow: 0 4px 20px rgb(0,0,0,0.06); background: #fff; border: 1px solid #f1f5f9; }
+        .nav-item { transition: .2s; cursor: pointer; }
+        .nav-item:hover { background: #fdf2f8; }
+        .nav-item.active { background: #fce7f3; color: #ec4899; font-weight: 600; }
+        #map { height: 400px; border-radius: 12px; z-index: 10; background: #e5e7eb; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        .calendar-day { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+        .calendar-day:hover { background: #f3f4f6; }
+        .calendar-day.today { border: 2px solid #ec4899; font-weight: 600; }
+        .calendar-day.period { background: #fecaca; color: #dc2626; font-weight: 500; }
+        .calendar-day.ovulation { background: #ddd6fe; color: #7c3aed; font-weight: 500; }
+        .calendar-day.fertile { background: #ede9fe; color: #8b5cf6; }
+        .calendar-day.exam { background: #cffafe; color: #0891b2; }
+        .modal-overlay { position: fixed; inset: 0; background: rgb(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-overlay.hidden { display: none; }
+        .lesson-card { transition: all 0.3s; position: relative; overflow: hidden; }
+        .lesson-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgb(0,0,0,0.1); }
+        .lesson-card.locked { opacity: 0.7; filter: grayscale(0.5); cursor: not-allowed; }
+        .lesson-card.completed { border-color: #10b981; }
+        .xp-bar { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #ec4899, #8b5cf6); transition: width 0.5s ease-out; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes bounceIn { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        .achievement-unlock { animation: bounceIn 0.5s ease-out; }
+        .gradient-text { background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
 </head>
-
 <body class="bg-gray-50 min-h-screen flex flex-col">
-
-<!-- МОДАЛЬНОЕ ОКНО САМООБСЛЕДОВАНИЯ -->
-<div id="selfexam-modal" class="modal-overlay hidden">
-  <div class="bg-white rounded-2xl w-full max-w-md p-6 relative">
-    <button onclick="closeSelfExam()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">✕</button>
-    <h2 class="text-xl font-bold mb-4">Самообследование</h2>
-    <div id="selfexam-video" class="mb-4">
-      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;">
-        <iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/Y5y6hrHbZtU" title="Самообследование груди" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </div>
-      <p class="text-sm text-gray-500 mt-2 text-center">Видео: Как проводить самообследование</p>
-    </div>
-    <div id="selfexam-step"></div>
-  </div>
-</div>
-
-<!-- МОДАЛЬНОЕ ОКНО УРОКА -->
-<div id="lesson-modal" class="modal-overlay hidden">
-  <div class="bg-white rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto relative">
-    <button onclick="closeLessonModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
-      <i data-feather="x" class="w-6 h-6"></i>
-    </button>
-    <div id="lesson-content"></div>
-  </div>
-</div>
-
-<!-- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ -->
-<div id="auth-modal" class="modal-overlay hidden">
-  <div class="bg-white rounded-2xl w-full max-w-md p-6 slide-up">
-    <div class="flex justify-between items-center mb-6">
-      <h2 id="auth-modal-title" class="text-xl font-bold">Вход</h2>
-      <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600">
-        <i data-feather="x" class="w-6 h-6"></i>
-      </button>
-    </div>
-
-    <!-- Login Form -->
-    <div id="login-form">
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-2">Email</label>
-        <input type="email" id="login-email" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="your@email.com">
-      </div>
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-2">Пароль</label>
-        <input type="password" id="login-password" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="••••••••">
-      </div>
-      <div class="flex items-center justify-between mb-4">
-        <label class="flex items-center gap-2 text-sm text-gray-600">
-          <input type="checkbox" id="remember-me" class="rounded border-gray-300">
-          Запомнить меня
-        </label>
-        <a href="#" onclick="showPasswordReset()" class="text-sm text-primary hover:underline">Забыли пароль?</a>
-      </div>
-      <button onclick="AuthManager.login()" class="w-full py-3 bg-primary text-white rounded-lg hover:bg-pink-600 transition font-medium">
-        Войти
-      </button>
-      <p class="text-center text-gray-600 mt-4">
-        Нет аккаунта? <a href="#" onclick="showRegisterForm()" class="text-primary font-medium hover:underline">Зарегистрироваться</a>
-      </p>
-    </div>
-
-    <!-- Register Form -->
-    <div id="register-form" class="hidden">
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-2">Имя</label>
-        <input type="text" id="register-name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Ваше имя">
-      </div>
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-2">Email</label>
-        <input type="email" id="register-email" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="your@email.com">
-      </div>
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-2">Пароль (мин. 8 символов, 1 цифра)</label>
-        <input type="password" id="register-password" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="••••••••">
-        <div id="password-strength" class="mt-2 h-1 rounded-full bg-gray-200">
-          <div id="password-strength-bar" class="h-full rounded-full transition-all" style="width: 0%"></div>
+    <!-- NAVIGATION -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
+                        <i data-feather="heart" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="font-bold text-lg gradient-text">MammoCare</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="lang-btn" class="p-2 hover:bg-gray-100 rounded-lg flex items-center gap-1">
+                        <span id="current-lang-flag">🇷🇺</span>
+                        <i data-feather="chevron-down" class="w-4 h-4"></i>
+                    </button>
+                    <div id="lang-dropdown" class="hidden absolute right-4 top-16 bg-white rounded-lg shadow-lg border py-2 min-w-[120px]">
+                        <button data-lang="ru" class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2">
+                            <span>🇷🇺</span> <span data-i18n="lang_ru">Русский</span>
+                        </button>
+                        <button data-lang="kz" class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2">
+                            <span>🇰🇿</span> <span data-i18n="lang_kz">Қазақша</span>
+                        </button>
+                        <button data-lang="en" class="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2">
+                            <span>🇬🇧</span> <span data-i18n="lang_en">English</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-2">Подтвердите пароль</label>
-        <input type="password" id="register-confirm" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="••••••••">
-      </div>
-      <label class="flex items-start gap-2 mb-4 text-sm text-gray-600">
-        <input type="checkbox" id="terms" class="mt-1 rounded border-gray-300">
-        <span>Я согласен с <a href="#" class="text-primary hover:underline">условиями использования</a> и <a href="#" class="text-primary hover:underline">политикой конфиденциальности</a></span>
-      </label>
-      <button onclick="AuthManager.register()" class="w-full py-3 bg-primary text-white rounded-lg hover:bg-pink-600 transition font-medium">
-        Зарегистрироваться
-      </button>
-      <p class="text-center text-gray-600 mt-4">
-        Уже есть аккаунт? <a href="#" onclick="showLoginForm()" class="text-primary font-medium hover:underline">Войти</a>
-      </p>
-    </div>
-
-    <!-- Password Reset -->
-    <div id="password-reset-form" class="hidden">
-      <p class="text-gray-600 mb-4">Введите email для восстановления пароля</p>
-      <input type="email" id="reset-email" class="w-full border border-gray-300 rounded-lg px-4 py-3 mb-4 focus:outline-none focus:border-primary" placeholder="your@email.com">
-      <button onclick="requestPasswordReset()" class="w-full py-3 bg-primary text-white rounded-lg hover:bg-pink-600 transition font-medium mb-4">
-        Восстановить пароль
-      </button>
-      <p class="text-center">
-        <a href="#" onclick="showLoginForm()" class="text-primary font-medium hover:underline">Вернуться ко входу</a>
-      </p>
-    </div>
-
-    <div id="auth-error" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"></div>
-    <div id="auth-success" class="hidden mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm"></div>
-  </div>
-</div>
-
-<!-- ДОСТИЖЕНИЯ МОДАЛ -->
-<div id="achievement-modal" class="modal-overlay hidden">
-  <div class="bg-white rounded-2xl w-full max-w-sm text-center slide-up">
-    <div class="p-8">
-      <div class="text-6xl mb-4" id="achievement-icon"></div>
-      <h3 class="text-2xl font-bold text-gray-800 mb-2">Достижение разблокировано!</h3>
-      <p class="text-xl font-semibold text-primary mb-2" id="achievement-title"></p>
-      <p class="text-gray-600 mb-6" id="achievement-desc"></p>
-      <button onclick="closeAchievementModal()" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-pink-600 font-medium">
-        Отлично!
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- PREMIUM МОДАЛ -->
-<div id="premium-modal" class="modal-overlay hidden">
-  <div class="bg-white rounded-2xl w-full max-w-md slide-up">
-    <div class="p-6">
-      <div class="flex justify-between items-start mb-4">
-        <div class="w-14 h-14 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-          <i data-feather="star" class="w-7 h-7 text-white"></i>
-        </div>
-        <button onclick="closePremiumModal()" class="text-gray-400 hover:text-gray-600">
-          <i data-feather="x" class="w-6 h-6"></i>
-        </button>
-      </div>
-      <h3 class="text-xl font-bold text-gray-800 mb-2">Premium возможности</h3>
-      <p class="text-gray-600 mb-4">Разблокируйте дополнительные функции!</p>
-      <div class="space-y-3 mb-6">
-        <div class="flex items-center gap-3 text-sm">
-          <i data-feather="check-circle" class="w-5 h-5 text-green-500"></i>
-          <span>Эксклюзивные уроки и материалы</span>
-        </div>
-        <div class="flex items-center gap-3 text-sm">
-          <i data-feather="check-circle" class="w-5 h-5 text-green-500"></i>
-          <span>Персональные рекомендации</span>
-        </div>
-        <div class="flex items-center gap-3 text-sm">
-          <i data-feather="check-circle" class="w-5 h-5 text-green-500"></i>
-          <span>Скидки на маммографию до 30%</span>
-        </div>
-      </div>
-      <button onclick="closePremiumModal()" class="w-full py-2 text-gray-500 hover:text-gray-700 text-sm mt-4">
-        Позже
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- МОДАЛЬНОЕ ОКНО ОЦЕНКИ РИСКА -->
-<div id="risk-modal" class="modal-overlay hidden">
-  <div class="bg-white rounded-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
-    <div class="text-center mb-6">
-      <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2M10.5 7H13.5L19 16L16.5 17.5L14 13V22H10V13L7.5 17.5L5 16L10.5 7Z" /></svg>
-      </div>
-      <h2 class="text-xl font-bold text-gray-800">Добро пожаловать!</h2>
-      <p class="text-gray-600 mt-2">Ответьте на вопросы для расчета риска</p>
-    </div>
-
-    <div class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Ваш возраст</label>
-        <input type="number" id="risk-age" placeholder="35" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Вес (кг)</label>
-          <input type="number" id="risk-weight" placeholder="65" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Рост (см)</label>
-          <input type="number" id="risk-height" placeholder="165" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-        </div>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Наследственность</label>
-        <select id="risk-family" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-          <option value="0">Нет</option>
-          <option value="1">Дальние родственники</option>
-          <option value="2">Мама/сестра</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Курение</label>
-        <select id="risk-smoke" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-          <option value="0">Не курю</option>
-          <option value="1">Бросила</option>
-          <option value="2">Курю</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Жалобы</label>
-        <select id="risk-symptoms" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-          <option value="0">Нет</option>
-          <option value="1">Дискомфорт</option>
-          <option value="3">Уплотнения/боль</option>
-        </select>
-      </div>
-
-      <button id="calculate-risk-btn" class="w-full py-3 bg-primary text-white rounded-lg hover:bg-pink-600 font-medium">Рассчитать</button>
-      <button id="skip-risk-btn" class="w-full py-2 text-gray-500 hover:text-gray-700 text-sm">Пропустить</button>
-    </div>
-
-    <div id="risk-result" class="hidden mt-6 p-4 rounded-lg text-center">
-      <p class="text-lg font-bold" id="risk-result-text"></p>
-      <p class="text-sm mt-2" id="risk-result-advice"></p>
-      <button id="continue-after-risk" class="mt-4 px-6 py-2 bg-primary text-white rounded-lg">Продолжить</button>
-    </div>
-  </div>
-</div>
-
-<!-- Header -->
-<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
-  <div class="container mx-auto px-4 py-3">
-    <div class="flex items-center justify-between">
-      <a href="#home" class="flex items-center space-x-2">
-        <div class="text-2xl text-primary">
-             <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2M10.5 7H13.5L19 16L16.5 17.5L14 13V22H10V13L7.5 17.5L5 16L10.5 7Z" /></svg>
-        </div>
-        <h1 class="text-xl font-bold text-gray-800">MammoCare</h1>
-      </a>
-
-      <button id="mobile-menu-btn" class="md:hidden text-gray-600">
-        <i data-feather="menu" class="w-6 h-6"></i>
-      </button>
-
-      <nav class="hidden md:flex space-x-1">
-        <a href="#home" class="nav-item active px-4 py-2 rounded-lg flex items-center gap-2"><i data-feather="home" class="w-4 h-4"></i> <span>Главная</span></a>
-        <a href="#learn" class="nav-item px-4 py-2 rounded-lg flex items-center gap-2"><i data-feather="award" class="w-4 h-4"></i> <span>Обучение</span></a>
-        <a href="#articles" class="nav-item px-4 py-2 rounded-lg flex items-center gap-2"><i data-feather="book-open" class="w-4 h-4"></i> <span>Статьи</span></a>
-        <a href="#cycle" class="nav-item px-4 py-2 rounded-lg flex items-center gap-2"><i data-feather="calendar" class="w-4 h-4"></i> <span>Цикл</span></a>
-        <a href="#clinics" class="nav-item px-4 py-2 rounded-lg flex items-center gap-2"><i data-feather="map" class="w-4 h-4"></i> <span>Клиники</span></a>
-        <a href="#about" class="nav-item px-4 py-2 rounded-lg flex items-center gap-2"><i data-feather="info" class="w-4 h-4"></i> <span>О нас</span></a>
-      </nav>
-
-      <div class="flex items-center gap-2">
-        <a href="#account" class="p-2 hover:bg-gray-100 rounded-full relative"><i data-feather="user" class="w-5 h-5 text-gray-600"></i></a>
-
-        <div class="relative">
-          <button id="lang-btn" class="flex items-center gap-1 px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50">
-            <span id="current-lang-flag">🇷🇺</span>
-          </button>
-          <div id="lang-dropdown" class="hidden absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-            <button onclick="setLanguage('ru')" class="w-full text-left px-3 py-2 hover:bg-gray-50">🇷🇺 Русский</button>
-            <button onclick="setLanguage('kz')" class="w-full text-left px-3 py-2 hover:bg-gray-50">🇰🇿 Қазақша</button>
-            <button onclick="setLanguage('en')" class="w-full text-left px-3 py-2 hover:bg-gray-50">🇬🇧 English</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
-
-<!-- Mobile Menu -->
-<div id="mobile-menu" class="hidden fixed inset-0 z-[999] bg-black/40">
-  <div class="bg-white h-full w-80 max-w-full p-6 ml-auto">
-    <div class="flex justify-between items-center mb-8">
-      <h2 class="text-xl font-bold">Меню</h2>
-      <button id="close-mobile-menu" class="text-gray-500"><i data-feather="x" class="w-6 h-6"></i></button>
-    </div>
-    <nav class="space-y-2">
-      <a href="#home" class="nav-item block px-4 py-3 rounded-lg"><i data-feather="home" class="w-5 h-5 inline mr-3"></i> Главная</a>
-      <a href="#learn" class="nav-item block px-4 py-3 rounded-lg"><i data-feather="award" class="w-5 h-5 inline mr-3"></i> Обучение</a>
-      <a href="#articles" class="nav-item block px-4 py-3 rounded-lg"><i data-feather="book-open" class="w-5 h-5 inline mr-3"></i> Статьи</a>
-      <a href="#cycle" class="nav-item block px-4 py-3 rounded-lg"><i data-feather="calendar" class="w-5 h-5 inline mr-3"></i> Цикл</a>
-      <a href="#clinics" class="nav-item block px-4 py-3 rounded-lg"><i data-feather="map" class="w-5 h-5 inline mr-3"></i> Клиники</a>
-      <a href="#about" class="nav-item block px-4 py-3 rounded-lg"><i data-feather="info" class="w-5 h-5 inline mr-3"></i> О нас</a>
-      <a href="#account" class="nav-item block px-4 py-3 rounded-lg"><i data-feather="user" class="w-5 h-5 inline mr-3"></i> Аккаунт</a>
     </nav>
-  </div>
-</div>
 
-<!-- Main -->
-<main class="flex-grow container mx-auto px-4 py-6">
-
-  <!-- ===== ГЛАВНАЯ ===== -->
-  <section id="view-home" class="view-section active space-y-6">
-
-    <!-- Карточка Риска -->
-    <div id="risk-card" class="hidden card p-5 bg-gradient-to-r from-pink-50 to-red-50 border-pink-200">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-600">Ваш риск</p>
-          <p class="text-2xl font-bold" id="home-risk-level">—</p>
+    <!-- MOBILE MENU -->
+    <div id="mobile-menu" class="hidden fixed inset-0 bg-black/50 z-50">
+        <div class="bg-white w-72 h-full slide-up">
+            <div class="p-4 border-b flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
+                        <i data-feather="heart" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="font-bold text-lg">MammoCare</span>
+                </div>
+                <button id="close-mobile-menu" class="p-2 hover:bg-gray-100 rounded-lg">
+                    <i data-feather="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="#home" class="nav-item block px-4 py-3 rounded-lg" data-view="home">
+                    <i data-feather="home" class="w-5 h-5 inline mr-3"></i>
+                    <span data-i18n="nav_home">Главная</span>
+                </a>
+                <a href="#learn" class="nav-item block px-4 py-3 rounded-lg" data-view="learn">
+                    <i data-feather="award" class="w-5 h-5 inline mr-3"></i>
+                    <span data-i18n="nav_learn">Обучение</span>
+                </a>
+                <a href="#articles" class="nav-item block px-4 py-3 rounded-lg" data-view="articles">
+                    <i data-feather="book-open" class="w-5 h-5 inline mr-3"></i>
+                    <span data-i18n="nav_articles">Статьи</span>
+                </a>
+                <a href="#cycle" class="nav-item block px-4 py-3 rounded-lg" data-view="cycle">
+                    <i data-feather="calendar" class="w-5 h-5 inline mr-3"></i>
+                    <span data-i18n="nav_cycle">Трекер</span>
+                </a>
+                <a href="#clinics" class="nav-item block px-4 py-3 rounded-lg" data-view="clinics">
+                    <i data-feather="map" class="w-5 h-5 inline mr-3"></i>
+                    <span data-i18n="nav_clinics">Клиники</span>
+                </a>
+                <a href="#about" class="nav-item block px-4 py-3 rounded-lg" data-view="about">
+                    <i data-feather="info" class="w-5 h-5 inline mr-3"></i>
+                    <span data-i18n="nav_about">О проекте</span>
+                </a>
+                <a href="#account" class="nav-item block px-4 py-3 rounded-lg" data-view="account">
+                    <i data-feather="user" class="w-5 h-5 inline mr-3"></i>
+                    <span id="account-nav-text" data-i18n="nav_account">Аккаунт</span>
+                </a>
+            </nav>
         </div>
-        <button id="recalculate-risk" class="text-sm text-primary hover:underline">Пересчитать</button>
-      </div>
     </div>
 
-    <!-- СТАТИСТИКА -->
-    <div class="card p-6 bg-white border-l-4 border-primary">
-      <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <i data-feather="bar-chart-2" class="w-5 h-5 text-primary"></i> Статистика рака груди
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="p-4 bg-gray-50 rounded-lg">
-          <p class="text-sm font-bold text-gray-500 mb-1">🇰🇿 Казахстан</p>
-          <p class="text-3xl font-bold text-gray-800">1-е</p>
-          <p class="text-sm text-gray-600">место по заболеваемости среди женщин</p>
-          <p class="text-xs text-gray-400 mt-2">~4 600 новых случаев ежегодно</p>
-        </div>
-        <div class="p-4 bg-gray-50 rounded-lg">
-          <p class="text-sm font-bold text-gray-500 mb-1">🌍 В мире</p>
-          <p class="text-3xl font-bold text-gray-800">2.3 млн</p>
-          <p class="text-sm text-gray-600">случаев ежегодно (по данным ВОЗ)</p>
-          <p class="text-xs text-gray-400 mt-2">Каждую 8-ю женщину затрагивает диагноз</p>
-        </div>
-      </div>
-      <div class="mt-4 p-3 bg-green-50 rounded-lg text-sm text-green-700 flex items-center gap-2">
-        <i data-feather="check-circle" class="w-4 h-4"></i>
-        <span>Раннее обнаружение повышает выживаемость до 98%</span>
-      </div>
-    </div>
-
-    <!-- Hero -->
-    <div class="card p-8 bg-gradient-to-br from-pink-50 via-white to-purple-50">
-      <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-3">Добро пожаловать в MammoCare</h2>
-      <p class="text-gray-600 mb-6">Осознание сегодня - может спаси жизнь завтра.</p>
-      <div class="flex flex-wrap gap-3">
-        <a href="#cycle" class="px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-pink-600 transition cursor-pointer">Трекер</a>
-        <a href="#clinics" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition cursor-pointer">Клиники</a>
-      </div>
-    </div>
-
-    <!-- Статус -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="card p-5">
-        <div class="flex items-center gap-3 mb-3"><div class="p-2 rounded-full bg-pink-100 text-primary"><i data-feather="calendar" class="w-5 h-5"></i></div><span class="font-medium text-gray-700">День цикла</span></div>
-        <p class="text-3xl font-bold text-gray-800" id="home-cycle-day">—</p>
-        <p class="text-sm text-gray-500" id="home-cycle-phase">Настройте</p>
-      </div>
-      <div class="card p-5">
-        <div class="flex items-center gap-3 mb-3"><div class="p-2 rounded-full bg-red-100 text-red-500"><i data-feather="droplet" class="w-5 h-5"></i></div><span class="font-medium text-gray-700">След. месячные</span></div>
-        <p class="text-xl font-bold text-gray-800" id="home-next-period">—</p>
-        <p class="text-sm text-gray-500" id="home-period-countdown"></p>
-      </div>
-      <div class="card p-5">
-        <div class="flex items-center gap-3 mb-3"><div class="p-2 rounded-full bg-purple-100 text-purple-600"><i data-feather="award" class="w-5 h-5"></i></div><span class="font-medium text-gray-700">Прогресс</span></div>
-        <p class="text-xl font-bold text-gray-800" id="home-xp-display">0 XP</p>
-        <p class="text-sm text-gray-500">Начните курс</p>
-      </div>
-    </div>
-
-    <!-- ПОЛЕЗНАЯ ИНФОРМАЦИЯ -->
-    <div class="card p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">Полезная информация</h3>
-
-        <!-- Кнопка Самообследования -->
-        <button onclick="openSelfExam()" class="mb-4 w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-pink-600 transition">
-          Пройти самообследование
-        </button>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="flex gap-3 items-start">
-                <div class="p-2 bg-pink-100 rounded-lg text-primary mt-1"><i data-feather="check" class="w-4 h-4"></i></div>
-                <div>
-                    <h4 class="font-semibold text-gray-800">Самообследование</h4>
-                    <p class="text-sm text-gray-600">Делайте это раз в месяц. Самообследование занимает 5 минут.</p>
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- HOME VIEW -->
+        <section id="view-home" class="view-section active space-y-6">
+            <div id="risk-card" class="hidden card p-5 bg-gradient-to-r from-pink-50 to-red-50 border-pink-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="home_risk_label">Риск</p>
+                        <p class="text-2xl font-bold" id="home-risk-level">—</p>
+                    </div>
+                    <button id="recalculate-risk" class="text-sm text-primary hover:underline" data-i18n="recalc">Пересчитать</button>
                 </div>
             </div>
-            <div class="flex gap-3 items-start">
-                <div class="p-2 bg-purple-100 rounded-lg text-secondary mt-1"><i data-feather="clock" class="w-4 h-4"></i></div>
-                <div>
-                    <h4 class="font-semibold text-gray-800">Скрининг</h4>
-                    <p class="text-sm text-gray-600">Маммография рекомендована женщинам старше 30 лет.</p>
+
+            <div class="card p-6 bg-white border-l-4 border-primary">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-feather="bar-chart-2" class="w-5 h-5 text-primary"></i>
+                    <span data-i18n="stats_title">Статистика рака груди</span>
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm font-bold text-gray-500 mb-1" data-i18n="stats_kz">Казахстан</p>
+                        <p class="text-3xl font-bold text-gray-800">1-е</p>
+                        <p class="text-sm text-gray-600" data-i18n="stats_kz_desc">место по заболеваемости</p>
+                        <p class="text-xs text-gray-400 mt-2">~4 600 новых случаев ежегодно</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm font-bold text-gray-500 mb-1" data-i18n="stats_world">В мире</p>
+                        <p class="text-3xl font-bold text-gray-800">2.3 млн</p>
+                        <p class="text-sm text-gray-600" data-i18n="stats_world_desc">случаев ежегодно (ВОЗ)</p>
+                        <p class="text-xs text-gray-400 mt-2">Каждую 8-ю женщину затрагивает диагноз</p>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-green-50 rounded-lg text-sm text-green-700 flex items-center gap-2">
+                    <i data-feather="check-circle" class="w-4 h-4"></i>
+                    <span data-i18n="stats_fact">Раннее обнаружение повышает выживаемость до 98%</span>
                 </div>
             </div>
-        </div>
-        <div class="mt-4 text-right">
-             <a href="#articles" class="text-sm text-primary hover:underline font-medium">Читать все статьи →</a>
-        </div>
-    </div>
 
-    <!-- Premium Banner -->
-    <div id="home-premium-banner" class="hidden card p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-            <i data-feather="star" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <h3 class="font-semibold">Разблокируйте Premium!</h3>
-            <p class="text-sm opacity-90">Эксклюзивные уроки и персональные рекомендации</p>
-          </div>
-        </div>
-        <button onclick="showPremiumModal()" class="px-6 py-2 bg-white text-primary rounded-lg font-medium hover:bg-gray-100 transition">
-          Узнать больше
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== ОБУЧЕНИЕ ===== -->
-  <section id="view-learn" class="view-section space-y-6">
-    <div class="card p-6 bg-gradient-to-r from-purple-50 to-pink-50">
-      <div class="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2"><i data-feather="award" class="w-6 h-6 text-primary"></i> 30-дневная программа</h2>
-          <p class="text-gray-600 mt-1">Укрепите здоровье шаг за шагом</p>
-        </div>
-        <div class="flex gap-4">
-          <div class="text-center">
-            <div class="w-16 h-16 rounded-full bg-yellow-100 border-4 border-yellow-300 flex items-center justify-center">
-              <span class="text-xl font-bold text-yellow-700" id="user-points">0</span>
+            <div class="card p-8 bg-gradient-to-br from-pink-50 via-white to-purple-50">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-3" data-i18n="hero_title">Добро пожаловать в MammoCare</h2>
+                <p class="text-gray-600 mb-6" data-i18n="hero_subtitle">Осознание сегодня - может спасти жизнь завтра.</p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="#cycle" class="px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-pink-600 transition cursor-pointer" data-view-link>
+                        <span data-i18n="btn_cycle">Трекер</span>
+                    </a>
+                    <a href="#clinics" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition cursor-pointer" data-view-link>
+                        <span data-i18n="btn_clinic">Клиники</span>
+                    </a>
+                </div>
             </div>
-            <p class="text-xs text-gray-600 mt-1">Баллов</p>
-          </div>
-          <div class="text-center">
-            <div class="w-16 h-16 rounded-full bg-orange-100 border-4 border-orange-300 flex items-center justify-center">
-              <span class="text-xl font-bold text-orange-700" id="user-streak">0</span>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="card p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="p-2 rounded-full bg-pink-100 text-primary">
+                            <i data-feather="calendar" class="w-5 h-5"></i>
+                        </div>
+                        <span class="font-medium text-gray-700" data-i18n="home_cycle_day">День цикла</span>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-800" id="home-cycle-day">—</p>
+                    <p class="text-sm text-gray-500" id="home-cycle-phase" data-i18n="home_cycle_setup">Настройте</p>
+                </div>
+                <div class="card p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="p-2 rounded-full bg-red-100 text-red-500">
+                            <i data-feather="droplet" class="w-5 h-5"></i>
+                        </div>
+                        <span class="font-medium text-gray-700" data-i18n="home_next_period">След. месячные</span>
+                    </div>
+                    <p class="text-xl font-bold text-gray-800" id="home-next-period">—</p>
+                    <p class="text-sm text-gray-500" id="home-period-countdown"></p>
+                </div>
+                <div class="card p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="p-2 rounded-full bg-purple-100 text-purple-600">
+                            <i data-feather="award" class="w-5 h-5"></i>
+                        </div>
+                        <span class="font-medium text-gray-700" data-i18n="home_progress">Прогресс</span>
+                    </div>
+                    <p class="text-xl font-bold text-gray-800" id="home-xp-display">0 XP</p>
+                    <p class="text-sm text-gray-500" data-i18n="home_progress_desc">Начните курс</p>
+                </div>
             </div>
-            <p class="text-xs text-gray-600 mt-1">Дней подряд</p>
-          </div>
-        </div>
-      </div>
-      <div class="mt-4">
-        <div class="flex justify-between text-sm text-gray-600 mb-2">
-          <span>Прогресс</span>
-          <span id="progress-text">0/30 дней</span>
-        </div>
-        <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-          <div id="progress-bar" class="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500" style="width: 0%"></div>
-        </div>
-      </div>
-    </div>
-    
-<button onclick="enableNotifications()" 
-class="w-full py-3 bg-primary text-white rounded-lg">
-Включить напоминания
-</button>
-    <!-- Achievements -->
-    <div class="card p-6">
-      <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-        <i data-feather="award" class="w-5 h-5 text-yellow-500"></i>
-        Достижения
-      </h3>
-      <div id="achievements-grid" class="grid grid-cols-2 md:grid-cols-5 gap-3"></div>
-    </div>
 
-    <div id="learning-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-  </section>
+            <div class="card p-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n="useful_info_title">Полезная информация</h3>
+                <button id="start-self-exam" class="mb-4 w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-pink-600 transition">
+                    <span data-i18n="btn_self_exam">Пройти самообследование</span>
+                </button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex gap-3 items-start">
+                        <div class="p-2 bg-pink-100 rounded-lg text-primary mt-1">
+                            <i data-feather="check" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800" data-i18n="info_self_title">Самообследование</h4>
+                            <p class="text-sm text-gray-600" data-i18n="info_self_desc">Делайте это раз в месяц. Занимает 5 минут.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 items-start">
+                        <div class="p-2 bg-purple-100 rounded-lg text-secondary mt-1">
+                            <i data-feather="clock" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800" data-i18n="info_age_title">Скрининг</h4>
+                            <p class="text-sm text-gray-600" data-i18n="info_age_desc">Маммография рекомендована женщинам старше 40 лет.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 text-right">
+                    <a href="#articles" class="text-sm text-primary hover:underline font-medium" data-view-link>
+                        <span data-i18n="read_all">Читать все статьи →</span>
+                    </a>
+                </div>
+            </div>
 
-  <!-- ===== СТАТЬИ ===== -->
-  <section id="view-articles" class="view-section space-y-6">
-    <div class="card p-6">
-      <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <i data-feather="book-open" class="w-6 h-6 text-primary"></i> Полезная информация
-      </h2>
-      <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-    </div>
-  </section>
+            <div id="home-premium-banner" class="hidden card p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                            <i data-feather="star" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold" data-i18n="premium_unlock">Разблокируйте Premium!</h3>
+                            <p class="text-sm opacity-90" data-i18n="premium_desc">Эксклюзивные уроки и персональные рекомендации</p>
+                        </div>
+                    </div>
+                    <button id="show-premium" class="px-6 py-2 bg-white text-primary rounded-lg font-medium hover:bg-gray-100 transition">
+                        <span data-i18n="premium_learn_more">Узнать больше</span>
+                    </button>
+                </div>
+            </div>
+        </section>
 
-  <!-- ===== ТРЕКЕР ЦИКЛА ===== -->
-  <section id="view-cycle" class="view-section space-y-6">
-    <div id="cycle-setup" class="card p-6">
-      <h2 class="text-xl font-bold text-gray-800 mb-4">Настройка трекера</h2>
-      <div class="space-y-4 max-w-md">
-        <!-- Режим -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Режим</label>
-          <div class="flex gap-2">
-            <button id="mode-menstrual" onclick="setCycleMode('menstrual')" class="flex-1 py-2 px-4 border-2 border-primary bg-pink-50 text-primary rounded-lg font-medium">
-              Менструальный цикл
+        <!-- LEARN VIEW -->
+        <section id="view-learn" class="view-section space-y-6">
+            <div class="card p-6 bg-gradient-to-r from-purple-50 to-pink-50">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                            <i data-feather="award" class="w-6 h-6 text-primary"></i>
+                            <span data-i18n="program_title">30-дневная программа</span>
+                        </h2>
+                        <p class="text-gray-600 mt-1" data-i18n="program_subtitle">Укрепите здоровье шаг за шагом</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-full bg-yellow-100 border-4 border-yellow-300 flex items-center justify-center">
+                                <span class="text-xl font-bold text-yellow-700" id="user-points">0</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1" data-i18n="points_label">Баллов</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-full bg-orange-100 border-4 border-orange-300 flex items-center justify-center">
+                                <span class="text-xl font-bold text-orange-700" id="user-streak">0</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1" data-i18n="streak_label">Дней подряд</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span data-i18n="progress_label">Прогресс</span>
+                        <span id="progress-text">0/30 дней</span>
+                    </div>
+                    <div class="xp-bar">
+                        <div id="progress-bar" class="xp-bar-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="enable-notifications" class="w-full py-3 bg-primary text-white rounded-lg">
+                <span data-i18n="btn_notifications">Включить напоминания</span>
             </button>
-            <button id="mode-menopause" onclick="setCycleMode('menopause')" class="flex-1 py-2 px-4 border-2 border-gray-200 text-gray-600 rounded-lg font-medium hover:border-gray-300">
-              Менопауза
+
+            <div class="card p-6">
+                <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-feather="award" class="w-5 h-5 text-yellow-500"></i>
+                    <span data-i18n="achievements_title">Достижения</span>
+                </h3>
+                <div id="achievements-grid" class="grid grid-cols-2 md:grid-cols-5 gap-3"></div>
+            </div>
+
+            <div id="learning-grid"></div>
+        </section>
+
+        <!-- ARTICLES VIEW -->
+        <section id="view-articles" class="view-section space-y-6">
+            <div class="card p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-feather="book-open" class="w-6 h-6 text-primary"></i>
+                    <span data-i18n="articles_title">Полезная информация</span>
+                </h2>
+                <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </section>
+
+        <!-- CYCLE VIEW -->
+        <section id="view-cycle" class="view-section space-y-6">
+            <div id="cycle-setup" class="card p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="cycle_setup_title">Настройка трекера</h2>
+                <div class="space-y-4 max-w-md">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="cycle_mode">Режим</label>
+                        <div class="flex gap-2">
+                            <button id="mode-menstrual" class="flex-1 py-2 px-4 border-2 border-primary bg-pink-50 text-primary rounded-lg font-medium" data-mode="menstrual">
+                                <span data-i18n="cycle_menstrual">Менструальный цикл</span>
+                            </button>
+                            <button id="mode-menopause" class="flex-1 py-2 px-4 border-2 border-gray-200 text-gray-600 rounded-lg font-medium hover:border-gray-300" data-mode="menopause">
+                                <span data-i18n="cycle_menopause">Менопауза</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="menstrual-settings">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="cycle_date">Дата последних месячных</label>
+                            <input type="date" id="setup-last-period" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="cycle_length">Длина цикла (дни)</label>
+                            <input type="number" id="setup-cycle-length" value="28" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="period_length">Длина месячных (дни)</label>
+                            <input type="number" id="setup-period-length" value="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                    <div id="menopause-settings" class="hidden">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="cycle_menopause_date">Дата наступления менопаузы</label>
+                            <input type="date" id="setup-menopause-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-medium text-blue-800 mb-2" data-i18n="cycle_about_menopause">О менопаузе</h4>
+                            <p class="text-sm text-blue-700" data-i18n="cycle_menopause_tip">После менопаузы риск рака молочной железы увеличивается. Важно:</p>
+                            <ul class="text-sm text-blue-700 mt-2 list-disc list-inside">
+                                <li data-i18n="cycle_meno_mammo">Регулярно проходить маммографию</li>
+                                <li data-i18n="cycle_meno_self">Продолжать самообследование</li>
+                                <li data-i18n="cycle_meno_weight">Поддерживать здоровый вес</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button id="save-cycle-settings" class="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-pink-600 transition">
+                        <span data-i18n="btn_save">Сохранить</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="cycle-calendar-container" class="hidden space-y-6">
+                <div id="menstrual-view">
+                    <div class="card p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <p class="text-sm text-gray-500" data-i18n="today_label">Сегодня</p>
+                                <p class="text-lg font-semibold" data-i18n="cycle_day_label">День <span id="current-cycle-day">1</span></p>
+                                <p class="text-sm text-gray-600" id="current-phase-name"></p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-pink-50 rounded-xl p-4 text-center">
+                                <div class="text-2xl font-bold text-pink-700">
+                                    <span id="days-to-period">—</span>
+                                </div>
+                                <p class="text-sm text-gray-600" data-i18n="days_to_period">до месячных</p>
+                            </div>
+                            <div class="bg-purple-50 rounded-xl p-4 text-center">
+                                <div class="text-2xl font-bold text-purple-700">
+                                    <span id="days-to-ovulation">—</span>
+                                </div>
+                                <p class="text-sm text-gray-600" data-i18n="days_to_ovulation">до овуляции</p>
+                            </div>
+                        </div>
+                        <div id="exam-reminder" class="hidden bg-cyan-50 border border-cyan-200 rounded-xl p-4 mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-cyan-100 rounded-full text-cyan-600 pulse">
+                                    <i data-feather="target" class="w-5 h-5"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-cyan-800" data-i18n="exam_reminder_title">Время для самообследования</p>
+                                    <p class="text-sm text-cyan-700" data-i18n="exam_reminder_desc">Оптимальный период (5-7 день).</p>
+                                </div>
+                                <button id="exam-done-btn" class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">
+                                    <span data-i18n="btn_done">Готово</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <button id="prev-month" class="p-2 hover:bg-gray-100 rounded-lg">
+                                <i data-feather="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            <h3 class="text-lg font-semibold text-gray-800" id="calendar-month-year"></h3>
+                            <button id="next-month" class="p-2 hover:bg-gray-100 rounded-lg">
+                                <i data-feather="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-medium text-gray-500">
+                            <div data-i18n="day_mon">Пн</div>
+                            <div data-i18n="day_tue">Вт</div>
+                            <div data-i18n="day_wed">Ср</div>
+                            <div data-i18n="day_thu">Чт</div>
+                            <div data-i18n="day_fri">Пт</div>
+                            <div data-i18n="day_sat">Сб</div>
+                            <div data-i18n="day_sun">Вс</div>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+                        <div class="mt-4 flex flex-wrap gap-4 text-sm">
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded-full bg-red-200 text-red-600 text-xs flex items-center justify-center">♥</div>
+                                <span data-i18n="legend_period">Месячные</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded-full bg-purple-200 text-purple-600 text-xs flex items-center justify-center">●</div>
+                                <span data-i18n="legend_ovulation">Овуляция</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="edit-cycle-settings" class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
+                        <i data-feather="settings" class="w-4 h-4"></i>
+                        <span data-i18n="edit_settings">Изменить настройки</span>
+                    </button>
+                </div>
+
+                <div id="menopause-view" class="hidden">
+                    <div class="card p-6 bg-gradient-to-r from-orange-50 to-yellow-50">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-3 bg-orange-100 rounded-full text-orange-600">
+                                <i data-feather="sun" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800" data-i18n="menopause_active">Активный режим</h3>
+                                <p class="text-gray-600" data-i18n="menopause_recommendations">Рекомендации для вас</p>
+                            </div>
+                        </div>
+                        <div id="menopause-duration" class="text-center p-4 bg-white rounded-lg mb-4"></div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="card p-4 bg-blue-50 border-blue-200">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-blue-100 rounded-full text-blue-600">
+                                    <i data-feather="activity" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-blue-800" data-i18n="menopause_mammo">Маммография</h4>
+                                    <p class="text-sm text-blue-700" data-i18n="menopause_mammo_desc">После менопаузы рекомендуется проходить ежегодно</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card p-4 bg-green-50 border-green-200">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-green-100 rounded-full text-green-600">
+                                    <i data-feather="check-circle" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-green-800" data-i18n="menopause_self">Самообследование</h4>
+                                    <p class="text-sm text-green-700" data-i18n="menopause_self_desc">Продолжайте делать ежемесячно</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card p-4 bg-purple-50 border-purple-200">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-purple-100 rounded-full text-purple-600">
+                                    <i data-feather="target" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-purple-800" data-i18n="menopause_lifestyle">Здоровый образ жизни</h4>
+                                    <p class="text-sm text-purple-700" data-i18n="menopause_lifestyle_desc">Контролируйте вес, занимайтесь спортом</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-4 bg-orange-50 border-orange-200 mt-4">
+                        <div class="flex items-start gap-3">
+                            <div class="p-2 rounded-full bg-orange-100 text-orange-600 pulse">
+                                <i data-feather="bell" class="w-5 h-5"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-orange-800" data-i18n="menopause_reminder">Напоминание о маммографии</p>
+                                <p class="text-sm text-orange-700" data-i18n="menopause_reminder_text">Проверьте, когда вы проходили последнюю маммографию.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="edit-cycle-settings-menopause" class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mt-4">
+                        <i data-feather="settings" class="w-4 h-4"></i>
+                        <span data-i18n="edit_settings">Изменить настройки</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- CLINICS VIEW -->
+        <section id="view-clinics" class="view-section space-y-6">
+            <div class="card p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n="clinics_title">Клиники маммографии</h2>
+                <p class="text-gray-600 mb-6" data-i18n="clinics_subtitle">Найдите ближайший центр в Астане.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="flex gap-3">
+                            <input type="text" id="search-clinics" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg" data-i18n-placeholder="clinics_search_placeholder" placeholder="Поиск...">
+                            <select id="filter-type" class="px-4 py-2 border border-gray-300 rounded-lg">
+                                <option value="" data-i18n="clinics_filter_all">Все</option>
+                                <option value="public" data-i18n="clinics_filter_public">Гос.</option>
+                                <option value="private" data-i18n="clinics_filter_private">Частные</option>
+                            </select>
+                        </div>
+                        <div id="map"></div>
+                    </div>
+                    <div id="clinics-list" class="space-y-3"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT VIEW -->
+        <section id="view-about" class="view-section space-y-6">
+            <div class="card p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-feather="info" class="w-6 h-6 text-primary"></i>
+                    <span data-i18n="about_title">О проекте</span>
+                </h2>
+                <div class="prose max-w-none">
+                    <p class="text-gray-600 mb-4" data-i18n="about_description">MammoCare — это приложение для профилактики рака груди. Мы верим, что ранняя диагностика спасает жизни.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-pink-50 rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-primary mb-2">30</div>
+                            <p class="text-sm text-gray-600" data-i18n="about_days">Образовательных дней</p>
+                        </div>
+                        <div class="bg-purple-50 rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-secondary mb-2">24/7</div>
+                            <p class="text-sm text-gray-600" data-i18n="about_support">Поддержка</p>
+                        </div>
+                        <div class="bg-cyan-50 rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-accent mb-2">100%</div>
+                            <p class="text-sm text-gray-600" data-i18n="about_free">Бесплатно</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACCOUNT VIEW -->
+        <section id="view-account" class="view-section space-y-6">
+            <div class="card p-6">
+                <div id="account-not-logged">
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-feather="user" class="w-8 h-8 text-gray-400"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-800 mb-2" data-i18n="account_title">Аккаунт</h2>
+                        <p class="text-gray-600 mb-4" data-i18n="account_login_prompt">Войдите, чтобы сохранять прогресс</p>
+                        <button id="auth-btn" class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-pink-600 transition">
+                            <i data-feather="log-in" class="w-4 h-4 inline mr-2"></i>
+                            <span data-i18n="btn_login">Войти</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="account-logged-in" class="hidden">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white">
+                            <i data-feather="user" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800" id="account-name"></h2>
+                            <p class="text-gray-500" id="account-email"></p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-yellow-50 rounded-xl p-4 text-center">
+                            <p class="text-2xl font-bold text-yellow-700" id="account-points">0</p>
+                            <p class="text-sm text-gray-600" data-i18n="account_xp">XP</p>
+                        </div>
+                        <div class="bg-purple-50 rounded-xl p-4 text-center">
+                            <p class="text-2xl font-bold text-purple-700" id="account-days">0</p>
+                            <p class="text-sm text-gray-600" data-i18n="account_days">Дней пройдено</p>
+                        </div>
+                        <div class="bg-pink-50 rounded-xl p-4 text-center">
+                            <p class="text-2xl font-bold text-pink-700" id="account-achievements">0</p>
+                            <p class="text-sm text-gray-600" data-i18n="account_achievements_count">Достижений</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <button id="change-password-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            <i data-feather="lock" class="w-4 h-4 inline mr-2"></i>
+                            <span data-i18n="btn_change_password">Изменить пароль</span>
+                        </button>
+                        <button id="logout-btn" class="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50">
+                            <i data-feather="log-out" class="w-4 h-4 inline mr-2"></i>
+                            <span data-i18n="btn_logout">Выйти</span>
+                        </button>
+                        <button id="clear-data-btn" class="px-4 py-2 border border-gray-300 text-gray-500 rounded-lg hover:bg-gray-50">
+                            <i data-feather="trash-2" class="w-4 h-4 inline mr-2"></i>
+                            <span data-i18n="btn_clear_data">Очистить данные</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- RISK MODAL -->
+    <div id="risk-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 slide-up">
+            <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="risk_title">Оцените ваш риск</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="risk_age">Возраст</label>
+                    <select id="risk-age" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="0">< 30</option>
+                        <option value="1">30-40</option>
+                        <option value="2" selected>40-50</option>
+                        <option value="3">50-60</option>
+                        <option value="4">> 60</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="risk_family">Семейная история</label>
+                    <select id="risk-family" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="0" data-i18n="opt_no">Нет</option>
+                        <option value="1" data-i18n="opt_distant">Отдалённые родственники</option>
+                        <option value="2" data-i18n="opt_close">Мать/Сестра</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="risk_weight">Индекс массы тела</label>
+                    <input type="number" id="risk-weight" placeholder="25" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="risk_smoking">Курение</label>
+                    <select id="risk-smoking" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="0" data-i18n="opt_no_smoke">Некурящий</option>
+                        <option value="1" data-i18n="opt_ex_smoke">Бывший курильщик</option>
+                        <option value="2" data-i18n="opt_smoke">Курит</option>
+                    </select>
+                </div>
+            </div>
+            <div id="risk-result" class="hidden mt-4 p-4 rounded-lg">
+                <p class="font-bold text-lg" id="risk-result-text"></p>
+                <p class="text-sm mt-1" id="risk-result-advice"></p>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button id="skip-risk-btn" class="flex-1 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50">
+                    <span data-i18n="btn_skip">Пропустить</span>
+                </button>
+                <button id="calculate-risk-btn" class="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-pink-600">
+                    <span data-i18n="btn_calculate">Рассчитать</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SELF EXAM MODAL -->
+    <div id="selfexam-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 relative">
+            <button id="close-self-exam" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">×</button>
+            <h2 class="text-xl font-bold mb-4" data-i18n="self_exam_title">Самообследование</h2>
+            <div class="mb-4">
+                <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;">
+                    <iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/Y5y6hrHbZtU" title="Самообследование груди" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <p class="text-sm text-gray-500 mt-2 text-center" data-i18n="self_exam_video">Видео: Как проводить самообследование</p>
+            </div>
+            <div id="selfexam-step"></div>
+        </div>
+    </div>
+
+    <!-- LESSON MODAL -->
+    <div id="lesson-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto relative">
+            <button id="close-lesson" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
+                <i data-feather="x" class="w-6 h-6"></i>
             </button>
-          </div>
+            <div id="lesson-content"></div>
         </div>
-
-        <!-- Настройки менструального цикла -->
-        <div id="menstrual-settings">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Дата последних месячных</label>
-            <input type="date" id="setup-last-period" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Длина цикла (дни)</label>
-            <input type="number" id="setup-cycle-length" value="28" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Длина месячных (дни)</label>
-            <input type="number" id="setup-period-length" value="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-          </div>
-        </div>
-
-        <!-- Настройки менопаузы -->
-        <div id="menopause-settings" class="hidden">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Дата наступления менопаузы</label>
-            <input type="date" id="setup-menopause-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-          </div>
-          <div class="mt-4 p-4 bg-blue-50 rounded-lg">
-            <h4 class="font-medium text-blue-800 mb-2">О менопаузе</h4>
-            <p class="text-sm text-blue-700">После менопаузы риск рака молочной железы увеличивается. Важно:</p>
-            <ul class="text-sm text-blue-700 mt-2 list-disc list-inside">
-              <li>Регулярно проходить маммографию</li>
-              <li>Продолжать самообследование</li>
-              <li>Поддерживать здоровый вес</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="flex gap-2">
-            <button id="save-cycle-settings" class="flex-1 py-3 bg-primary text-white rounded-lg hover:bg-pink-600 font-medium">Сохранить</button>
-            <button id="reset-cycle-btn" class="py-3 px-4 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium text-sm">Сброс</button>
-        </div>
-      </div>
     </div>
 
-    <div id="cycle-calendar-container" class="hidden space-y-6">
-      <!-- Контейнер для режима менструального цикла -->
-      <div id="menstrual-view">
-        <div class="card p-6 bg-gradient-to-r from-pink-50 to-purple-50">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <p class="text-sm text-gray-600">Сегодня</p>
-              <p class="text-4xl font-bold text-gray-800">День <span id="current-cycle-day">1</span></p>
-              <p class="text-lg text-primary font-medium" id="current-phase-name"></p>
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="auth-modal-title" class="text-xl font-bold" data-i18n="login_title">Вход</h2>
+                <button id="close-auth" class="text-gray-400 hover:text-gray-600">
+                    <i data-feather="x" class="w-6 h-6"></i>
+                </button>
             </div>
-            <div class="flex gap-4">
-              <div class="text-center">
-                <div class="w-16 h-16 rounded-full bg-white shadow flex items-center justify-center mb-1"><span class="text-2xl font-bold text-red-500" id="days-to-period">—</span></div>
-                <p class="text-xs text-gray-600">до месячных</p>
-              </div>
-              <div class="text-center">
-                <div class="w-16 h-16 rounded-full bg-white shadow flex items-center justify-center mb-1"><span class="text-2xl font-bold text-purple-500" id="days-to-ovulation">—</span></div>
-                <p class="text-xs text-gray-600">до овуляции</p>
-              </div>
+            <div id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2" data-i18n="email_label">Email</label>
+                    <input type="email" id="login-email" class="w-full border border-gray-300 rounded-lg px-4 py-3" data-i18n-placeholder="email_placeholder" placeholder="your@email.com">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2" data-i18n="password_label">Пароль</label>
+                    <input type="password" id="login-password" class="w-full border border-gray-300 rounded-lg px-4 py-3" placeholder="●●●●●●">
+                </div>
+                <button id="login-btn" class="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-pink-600">
+                    <span data-i18n="btn_login">Войти</span>
+                </button>
+                <p class="text-center text-sm text-gray-600">
+                    <span data-i18n="no_account">Нет аккаунта?</span>
+                    <a href="#" id="show-register" class="text-primary hover:underline" data-i18n="btn_register">Зарегистрироваться</a>
+                </p>
+                <p class="text-center text-sm">
+                    <a href="#" id="show-reset" class="text-gray-500 hover:underline" data-i18n="forgot_password">Забыли пароль?</a>
+                </p>
             </div>
-          </div>
-        </div>
-
-        <div id="exam-reminder" class="hidden card p-4 bg-cyan-50 border-cyan-200">
-          <div class="flex items-start gap-3">
-            <div class="p-2 rounded-full bg-cyan-100 text-cyan-600 pulse"><i data-feather="bell" class="w-5 h-5"></i></div>
-            <div class="flex-1">
-              <p class="font-medium text-cyan-800">Время для самообследования!</p>
-              <p class="text-sm text-cyan-700">Оптимальный период (5-7 день).</p>
+            <div id="register-form" class="hidden space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2" data-i18n="name_label">Имя</label>
+                    <input type="text" id="register-name" class="w-full border border-gray-300 rounded-lg px-4 py-3" data-i18n-placeholder="name_placeholder" placeholder="Ваше имя">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2" data-i18n="email_label">Email</label>
+                    <input type="email" id="register-email" class="w-full border border-gray-300 rounded-lg px-4 py-3" data-i18n-placeholder="email_placeholder" placeholder="your@email.com">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2" data-i18n="password_label">Пароль</label>
+                    <input type="password" id="register-password" class="w-full border border-gray-300 rounded-lg px-4 py-3" placeholder="●●●●●●">
+                    <div class="mt-1 h-1 bg-gray-200 rounded">
+                        <div id="password-strength-bar" class="h-full rounded transition-all" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2" data-i18n="confirm_password_label">Подтвердите пароль</label>
+                    <input type="password" id="register-confirm" class="w-full border border-gray-300 rounded-lg px-4 py-3" placeholder="●●●●●●">
+                </div>
+                <label class="flex items-start gap-2 text-sm">
+                    <input type="checkbox" id="terms" class="mt-1">
+                    <span data-i18n="terms_text">Я согласен с <a href="#" class="text-primary">условиями</a> и <a href="#" class="text-primary">политикой конфиденциальности</a></span>
+                </label>
+                <button id="register-btn" class="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-pink-600">
+                    <span data-i18n="btn_register">Зарегистрироваться</span>
+                </button>
+                <p class="text-center text-sm text-gray-600">
+                    <span data-i18n="has_account">Уже есть аккаунт?</span>
+                    <a href="#" id="show-login" class="text-primary hover:underline" data-i18n="btn_login_link">Войти</a>
+                </p>
             </div>
-            <button id="exam-done-btn" class="px-3 py-1 bg-cyan-600 text-white text-sm rounded-lg">Готово</button>
-          </div>
-        </div>
-
-        <div class="card p-6">
-          <div class="flex items-center justify-between mb-4">
-            <button id="prev-month" class="p-2 hover:bg-gray-100 rounded-lg"><i data-feather="chevron-left" class="w-5 h-5"></i></button>
-            <h3 class="text-lg font-semibold text-gray-800" id="calendar-month-year"></h3>
-            <button id="next-month" class="p-2 hover:bg-gray-100 rounded-lg"><i data-feather="chevron-right" class="w-5 h-5"></i></button>
-          </div>
-          <div class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-medium text-gray-500">
-              <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
-          </div>
-          <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
-          <div class="flex flex-wrap gap-4 mt-6 pt-4 border-t border-gray-100">
-            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-red-200"></div><span class="text-sm text-gray-600"> Месячные </span></div>
-            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-purple-200"></div><span class="text-sm text-gray-600"> Овуляция </span></div>
-          </div>
-        </div>
-
-        <!-- ПРОГНОЗ -->
-        <div class="card p-6">
-          <h3 class="font-semibold text-gray-800 mb-4">Прогноз на 3 месяца</h3>
-          <div id="forecast-list" class="space-y-3"></div>
-        </div>
-      </div>
-
-      <!-- Контейнер для режима менопаузы -->
-      <div id="menopause-view" class="hidden">
-        <div class="card p-6 bg-gradient-to-r from-blue-50 to-teal-50">
-          <div class="flex items-center gap-4 mb-4">
-            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-              <span class="text-3xl">🌸</span>
+            <div id="password-reset-form" class="hidden space-y-4">
+                <p class="text-gray-600" data-i18n="reset_instructions">Введите email для восстановления пароля</p>
+                <input type="email" id="reset-email" class="w-full border border-gray-300 rounded-lg px-4 py-3" data-i18n-placeholder="email_placeholder" placeholder="your@email.com">
+                <button id="reset-btn" class="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-pink-600">
+                    <span data-i18n="btn_reset">Восстановить пароль</span>
+                </button>
+                <p class="text-center">
+                    <a href="#" id="back-to-login" class="text-gray-500 hover:underline" data-i18n="back_to_login">Вернуться ко входу</a>
+                </p>
             </div>
-            <div>
-              <p class="text-4xl font-bold text-gray-800">Менопауза</p>
-              <p class="text-lg text-blue-600" id="menopause-status">Активный режим</p>
+            <div id="auth-error" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm"></div>
+            <div id="auth-success" class="hidden mt-4 p-3 bg-green-50 text-green-600 rounded-lg text-sm"></div>
+        </div>
+    </div>
+
+    <!-- ACHIEVEMENT MODAL -->
+    <div id="achievement-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-2xl w-full max-w-sm text-center slide-up">
+            <div class="p-8">
+                <div class="text-6xl mb-4" id="achievement-icon"></div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2" data-i18n="achievement_unlocked">Достижение разблокировано</h3>
+                <p class="text-xl font-semibold text-primary mb-2" id="achievement-title"></p>
+                <p class="text-gray-600 mb-6" id="achievement-desc"></p>
+                <button id="close-achievement" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-pink-600 font-medium">
+                    <span data-i18n="btn_great">Отлично!</span>
+                </button>
             </div>
-          </div>
-          <p class="text-gray-600 mb-4" id="menopause-duration"></p>
         </div>
+    </div>
 
-        <!-- Рекомендации для менопаузы -->
-        <div class="card p-6">
-          <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <i data-feather="heart" class="w-5 h-5 text-red-500"></i> Рекомендации для вас
-          </h3>
-          <div class="space-y-3">
-            <div class="flex gap-3 p-3 bg-pink-50 rounded-lg">
-              <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center flex-shrink-0">
-                <i data-feather="activity" class="w-5 h-5 text-pink-600"></i>
-              </div>
-              <div>
-                <p class="font-medium text-gray-800">Маммография</p>
-                <p class="text-sm text-gray-600">После менопаузы рекомендуется проходить ежегодно</p>
-              </div>
+    <!-- PREMIUM MODAL -->
+    <div id="premium-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-2xl w-full max-w-md slide-up">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-14 h-14 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                        <i data-feather="star" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <button id="close-premium" class="text-gray-400 hover:text-gray-600">
+                        <i data-feather="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="premium_title">Premium возможности</h3>
+                <p class="text-gray-600 mb-4" data-i18n="premium_unlock_desc">Разблокируйте дополнительные функции</p>
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-3 text-sm">
+                        <i data-feather="check-circle" class="w-5 h-5 text-green-500"></i>
+                        <span data-i18n="premium_feature_1">Эксклюзивные уроки и материалы</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm">
+                        <i data-feather="check-circle" class="w-5 h-5 text-green-500"></i>
+                        <span data-i18n="premium_feature_2">Персональные рекомендации</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm">
+                        <i data-feather="check-circle" class="w-5 h-5 text-green-500"></i>
+                        <span data-i18n="premium_feature_3">Скидки на маммографию до 30%</span>
+                    </div>
+                </div>
+                <button id="close-premium-btn" class="w-full py-2 text-gray-500 hover:text-gray-700 text-sm mt-4">
+                    <span data-i18n="btn_later">Позже</span>
+                </button>
             </div>
-            <div class="flex gap-3 p-3 bg-green-50 rounded-lg">
-              <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                <i data-feather="check-circle" class="w-5 h-5 text-green-600"></i>
-              </div>
-              <div>
-                <p class="font-medium text-gray-800">Самообследование</p>
-                <p class="text-sm text-gray-600">Продолжайте делать ежемесячно</p>
-              </div>
-            </div>
-            <div class="flex gap-3 p-3 bg-blue-50 rounded-lg">
-              <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <i data-feather="target" class="w-5 h-5 text-blue-600"></i>
-              </div>
-              <div>
-                <p class="font-medium text-gray-800">Здоровый образ жизни</p>
-                <p class="text-sm text-gray-600">Контролируйте вес, занимайтесь спортом</p>
-              </div>
-            </div>
-          </div>
         </div>
-
-        <!-- Напоминание о маммографии -->
-        <div class="card p-4 bg-orange-50 border-orange-200">
-          <div class="flex items-start gap-3">
-            <div class="p-2 rounded-full bg-orange-100 text-orange-600 pulse"><i data-feather="bell" class="w-5 h-5"></i></div>
-            <div class="flex-1">
-              <p class="font-medium text-orange-800">Напоминание о маммографии</p>
-              <p class="text-sm text-orange-700" id="mammogram-reminder">Проверьте, когда вы проходили последнюю маммографию.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-center">
-        <button id="edit-cycle-settings" class="text-sm text-gray-500 hover:text-primary"><i data-feather="settings" class="w-4 h-4 inline"></i> Изменить настройки</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== КЛИНИКИ ===== -->
-  <section id="view-clinics" class="view-section space-y-6">
-    <div class="card p-6">
-      <h2 class="text-2xl font-bold text-gray-800 mb-2">Клиники маммографии</h2>
-      <p class="text-gray-600 mb-6">Найдите ближайший центр в Астане.</p>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-4">
-          <div class="flex gap-3">
-            <input type="text" id="search-clinics" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg" placeholder="Поиск...">
-            <select id="filter-type" class="px-4 py-2 border border-gray-300 rounded-lg">
-              <option value="">Все</option>
-              <option value="public">Гос.</option>
-              <option value="private">Частные</option>
-            </select>
-          </div>
-          <div id="map" class="w-full rounded-lg"></div>
-        </div>
-        <div>
-          <h3 class="font-semibold text-gray-800 mb-3">Список</h3>
-          <div id="clinics-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== О НАС ===== -->
-  <section id="view-about" class="view-section space-y-6">
-    <div class="card p-8 text-center bg-gradient-to-br from-pink-50 to-white">
-      <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-        <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2M10.5 7H13.5L19 16L16.5 17.5L14 13V22H10V13L7.5 17.5L5 16L10.5 7Z" /></svg>
-      </div>
-      <h2 class="text-3xl font-bold text-gray-800 mb-2">О проекте MammoCare</h2>
-      <p class="text-lg text-gray-600 max-w-2xl mx-auto">Проект MammoCare был создан нашей командой девушек как ответ на одну из самых острых и недооценённых проблем здоровья женщин в Казахстане — высокий уровень заболеваемости и смертности от рака молочной железы.</p>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="card p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><i data-feather="target" class="w-5 h-5 text-primary"></i> Миссия</h3>
-        <p class="text-gray-600">Снизить смертность от рака молочной железы за счёт раннего выявления, цифрового мониторинга здоровья и доступной профилактики.</p>
-      </div>
-      <div class="card p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><i data-feather="mail" class="w-5 h-5 text-secondary"></i> Контакты</h3>
-        <div class="space-y-2 text-gray-600">
-            <p>Instagram: <a href="https://instagram.com/qyzqylttaspa" target="_blank" class="text-primary font-medium">@qyzqylttaspa</a></p>
-            <p>Email: <a href="/cdn-cgi/l/email-protection#126677737f7f737f7f7d71736077527d67667e7d7d793c717d7f" class="text-primary font-medium"><span class="__cf_email__" data-cfemail="80f4e5e1edede1ededefe3e1f2e5c0eff5f4ecefefebaee3efed">[email&#160;protected]</span></a></p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== ЛИЧНЫЙ КАБИНЕТ ===== -->
-  <section id="view-account" class="view-section space-y-6">
-    <!-- Авторизованный пользователь -->
-    <div id="account-logged-in" class="hidden">
-      <div class="card p-8 mb-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-        <div class="flex items-center gap-6 mb-6">
-          <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
-            <i data-feather="user" class="w-10 h-10 text-white"></i>
-          </div>
-          <div>
-            <h2 class="text-2xl font-bold" id="account-name"></h2>
-            <p class="opacity-90" id="account-email"></p>
-            <p class="text-sm opacity-80 mt-1">С нами с <span id="account-since"></span></p>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div class="bg-yellow-50 rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-yellow-700" id="account-points">0</p>
-            <p class="text-sm text-gray-600">Баллов</p>
-          </div>
-          <div class="bg-orange-50 rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-orange-700" id="account-streak">0</p>
-            <p class="text-sm text-gray-600">Дней подряд</p>
-          </div>
-          <div class="bg-purple-50 rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-purple-700" id="account-days">0</p>
-            <p class="text-sm text-gray-600">Дней пройдено</p>
-          </div>
-          <div class="bg-pink-50 rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-pink-700" id="account-achievements">0</p>
-            <p class="text-sm text-gray-600">Достижений</p>
-          </div>
-        </div>
-        <div class="flex flex-wrap gap-3">
-          <button onclick="showChangePasswordModal()" class="px-4 py-2 border border-white/30 rounded-lg hover:bg-white/10 transition text-sm">
-            Изменить пароль
-          </button>
-          <button onclick="AuthManager.logout()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm">
-            Выйти
-          </button>
-        </div>
-      </div>
     </div>
 
-    <!-- Не авторизован -->
-    <div id="account-not-logged" class="card p-8 text-center">
-      <div class="w-20 h-20 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-        <i data-feather="user" class="w-10 h-10 text-gray-400"></i>
-      </div>
-      <h3 class="text-xl font-semibold text-gray-800 mb-2">Вы не авторизованы</h3>
-      <p class="text-gray-600 mb-4">Войдите в аккаунт, чтобы сохранять прогресс обучения и персональные данные</p>
-      <button onclick="showAuthModal()" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-pink-600 transition font-medium">
-        Войти / Регистрация
-      </button>
-    </div>
-  </section>
-
-</main>
-
-<!-- Footer -->
-<footer class="bg-white border-t border-gray-100 py-4 mt-auto">
-  <div class="container mx-auto px-4 text-center text-sm text-gray-500">© 2026 MammoCare • <a href="#about" class="hover:text-primary">О нас</a></div>
-</footer>
-
-<!-- AI -->
-<button id="ai-btn" class="fixed bottom-5 right-5 z-50 bg-primary text-white p-4 rounded-full shadow-lg hover:bg-pink-600 transition"><i data-feather="message-circle" class="w-6 h-6"></i></button>
-<div id="ai-modal" class="hidden fixed inset-0 z-[1000] bg-black/50 flex items-end md:items-center justify-center p-0 md:p-4">
-  <div class="bg-white w-full md:max-w-md md:rounded-2xl flex flex-col h-[70vh] md:h-[500px]">
-    <div class="p-4 border-b flex items-center justify-between bg-gradient-to-r from-pink-500 to-purple-500 text-white md:rounded-t-2xl">
-      <div class="flex items-center gap-3"><div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center"><i data-feather="cpu" class="w-5 h-5"></i></div><div><p class="font-semibold">AI</p></div></div>
-      <button id="ai-close" class="p-2 hover:bg-white/20 rounded-full"><i data-feather="x" class="w-5 h-5"></i></button>
-    </div>
-    <div id="ai-messages" class="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50"></div>
-    <div class="p-4 border-t bg-white md:rounded-b-2xl">
-      <div class="flex gap-2">
-        <input id="ai-input" type="text" class="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary" placeholder="Вопрос...">
-        <button id="ai-send" class="p-3 bg-primary text-white rounded-full hover:bg-pink-600 transition"><i data-feather="send" class="w-5 h-5"></i></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== СКРИПТЫ ===== -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ========== ДАННЫЕ ==========
-const articlesData = [
-    { title: "Рак груди: факты ВОЗ", desc: "Официальная информация от Всемирной организации здравоохранения.", link: "https://www.who.int/ru/news-room/fact-sheets/detail/breast-cancer" },
-    { title: "Рак молочной железы (Вики)", desc: "Полная энциклопедическая статья о заболевании.", link: "https://ru.wikipedia.org/wiki/%D0%A0%D0%B0%D0%BA_%D0%BC%D0%BE%D0%BB%D0%BE%D1%87%D0%BD%D0%BE%D0%B9_%D0%B6%D0%B5%D0%BB%D0%B5%D0%B7%D1%8B" },
-    { title: "BreastCancer.org", desc: "Международный ресурс о раке груди.", link: "https://www.breastcancer.org/" },
-    { title: "Маммография: подготовка", desc: "Как подготовиться к маммографии.", link: "https://www.mayoclinic.org/tests-procedures/mammogram/about/pac-20384806" },
-    { title: "Американское онкообщество", desc: "Подробные материалы от ACS.", link: "https://www.cancer.org/cancer/breast-cancer.html" },
-];
-
-const clinicsData = [
-  { id: 1, name: "Городская больница №2", address: "ул. Турар Рыскулова, 6", type: "public", lat: 51.1477, lng: 71.4216 },
-  { id: 2, name: "Городская поликлиника №9", address: "пр. Мангилик Ел, 16/1", type: "public", lat: 51.0899, lng: 71.4165 },
-  { id: 3, name: "ННОЦ (Онкоцентр)", address: "пр. Кабанбай Батыра, 53", type: "research", lat: 51.1201, lng: 71.4428 },
-  { id: 4, name: "РДЦ (UMC)", address: "ул. Сыганак, 46", type: "public", lat: 51.1356, lng: 71.4254 },
-  { id: 5, name: "Клиника Big Tau", address: "пр. Туран, 50", type: "private", lat: 51.1325, lng: 71.4301 },
-  { id: 6, name: "Медцентр Sak", address: "пр. Сарыарка, 42", type: "private", lat: 51.1428, lng: 71.4389 },
-  { id: 7, name: "Президентская клиника", address: "пр. Мангилик Ел, 80", type: "private", lat: 51.0954, lng: 71.4218 },
-  { id: 8, name: "Онкоцентр UMIT", address: "пр. Абылай хана, 42/1", type: "private", lat: 51.1253, lng: 71.4328 },
-  { id: 9, name: "Медцентр EMIRMED", address: "ул. Куйши Дина, 9", type: "private", lat: 51.1224, lng: 71.4193 },
-  { id: 10, name: "Поликлиника №4", address: "ул. Ауэзова, 1", type: "public", lat: 51.1591, lng: 71.4182 }
-];
-
-// ========== КОНТЕНТ УРОКОВ (30 дней) ==========
-const LESSONS = [
-  { id: 1, title: "Добро пожаловать!", xp: 100, content: "<h3>Добро пожаловать в 30-дневную программу MammoCare!</h3><p>Вы сделали важный шаг, заботясь о своём здоровье. В течение следующих 30 дней вы узнаете всё о здоровье груди и профилактике рака.</p><h4>Сегодня:</h4><ol><li>Узнайте свой уровень риска</li><li>Настройте трекер цикла</li><li>Начните первый урок</li></ol>", quiz: null },
-  { id: 2, title: "Самообследование", xp: 150, content: "<h3>Как правильно проводить самообследование</h3><p><strong>Когда:</strong> 5-7 день цикла, после душа</p><div class=\"mb-4\"><div style=\"position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;\"><iframe style=\"position:absolute;top:0;left:0;width:100%;height:100%;\" src=\"https://www.youtube.com/embed/Y5y6hrHbZtU\" title=\"Самообследование груди\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div><p class=\"text-sm text-gray-500 mt-2 text-center\">Видео: Как проводить самообследование молочной железы</p></div><h4>Шаг 1: Осмотр</h4><p>Встаньте перед зеркалом. Осмотрите грудь на наличие изменений формы, размера, кожи.</p><h4>Шаг 2: Пальпация</h4><p>Используйте подушечки пальцев, двигаясь по спирали от подмышки к соску.</p><h4>Шаг 3: Проверка сосков</h4><p>Сожмите сосок, проверьте на выделения.</p><div class=\"mt-4 p-4 bg-yellow-50 rounded-lg\"><p class=\"text-sm text-yellow-800\"><strong>Важно:</strong> Самообследование не заменяет маммографию и УЗИ. При любых изменениях обратитесь к врачу!</p></div>", quiz: [{ q: "Когда лучше делать самообследование?", options: ["Любой день", "5-7 день цикла", "Во время месячных"], answer: 1 }] },
-  { id: 3, title: "Менструальный цикл", xp: 50, content: "<h3>Понимание менструального цикла</h3><p>Средний цикл — 28 дней. Каждая фаза влияет на ткани груди.</p><h4>Фолликулярная фаза (1-14 дни)</h4><p>Растёт уровень эстрогена. Грудь может быть более чувствительной.</p><h4>Овуляция (14 день)</h4><p>Выход яйцеклетки. Максимальный уровень эстрогена.</p><h4>Лютеиновая фаза (15-28 дни)</h4><p>Растёт прогестерон. Возможен дискомфорт в груди.</p>", quiz: [{ q: "Сколько дней длится средний цикл?", options: ["14", "28", "35"], answer: 1 }] },
-  { id: 4, title: "Анатомия груди", xp: 50, content: "<h3>Структура тканей груди</h3><p>Грудь состоит из долек, протоков и жировой ткани.</p><h4>Дольки</h4><p>Производят молоко при грудном вскармливании.</p><h4>Протоки</h4><p>Переносят молоко к соску.</p><h4>Жировая ткань</h4><p>Определяет размер груди.</p>", quiz: null },
-  { id: 5, title: "Факторы риска", xp: 50, content: "<h3>Что повышает риск</h3><p>Знание факторов риска помогает принимать профилактические меры.</p><h4>Немодифицируемые:</h4><ul><li>Возраст (риск растёт после 40)</li><li>Генетика (BRCA1, BRCA2)</li><li>Семейная история</li></ul><h4>Модифицируемые:</h4><ul><li>Ожирение</li><li>Курение</li><li>Алкоголь</li><li>Малоподвижный образ жизни</li></ul>", quiz: null },
-  { id: 6, title: "Питание и здоровье", xp: 50, content: "<h3>Полезные продукты</h3><p>Правильное питание снижает риск заболеваний.</p><h4>Рекомендуется:</h4><ul><li>Овощи и фрукты (особенно крестоцветные)</li><li>Цельнозерновые продукты</li><li>Рыба и омега-3</li><li>Оливковое масло</li></ul><h4>Ограничить:</h4><ul><li>Красное мясо</li><li>Переработанные продукты</li><li>Сахар</li></ul>", quiz: null },
-  { id: 7, title: "Физические упражнения", xp: 50, content: "<h3>Активность для здоровья</h3><p>Регулярные упражнения снижают риск рака груди на 10-20%.</p><h4>Рекомендации:</h4><ul><li>150 минут умеренной активности в неделю</li><li>Или 75 минут интенсивной</li><li>Упражнения с весом для мышечной массы</li></ul>", quiz: null },
-  { id: 8, title: "Стресс и гормоны", xp: 50, content: "<h3>Влияние стресса</h3><p>Хронический стресс нарушает гормональный баланс.</p><h4>Эффекты стресса:</h4><ul><li>Повышает кортизол</li><li>Снижает иммунитет</li><li>Нарушает сон</li></ul><h4>Методы управления:</h4><ul><li>Медитация</li><li>Дыхательные упражнения</li><li>Достаточный сон</li></ul>", quiz: null },
-  { id: 9, title: "Что такое маммография", xp: 50, content: "<h3>Рентген груди</h3><p>Маммография — рентгеновское исследование молочной железы.</p><h4>Цели:</h4><ul><li>Раннее выявление опухолей</li><li>Скрининг до появления симптомов</li></ul><h4>Виды:</h4><ul><li>Скрининговая (профилактическая)</li><li>Диагностическая (при подозрении)</li></ul>", quiz: null },
-  { id: 10, title: "Когда проходить", xp: 50, content: "<h3>Возраст и частота</h3><p>Рекомендации по маммографии:</p><ul><li>40-50 лет: раз в 1-2 года</li><li>После 50: ежегодно</li><li>При высоком риске: с 30-35 лет</li></ul><h4>Лучшее время:</h4><p>5-12 день цикла (меньше болезненность)</p>", quiz: null },
-  { id: 11, title: "Симптомы рака", xp: 50, content: "<h3>На что обращать внимание</h3><p>Ранние признаки могут быть незаметны, но...</p><h4>Тревожные симптомы:</h4><ul><li>Уплотнение в груди или подмышке</li><li>Изменение формы или размера</li><li>Покраснение или шелушение кожи</li><li>Выделения из соска</li><li>Втяжение кожи или соска</li></ul>", quiz: null },
-  { id: 12, title: "Мифы о раке груди", xp: 50, content: "<h3>Развенчание мифов</h3><p><strong>Миф:</strong> Антиперспиранты вызывают рак<br><strong>Факт:</strong> Нет научных доказательств</p><p><strong>Миф:</strong> Травма груди вызывает рак<br><strong>Факт:</strong> Травма не является причиной</p><p><strong>Миф:</strong> Мелкие груди — меньше риск<br><strong>Факт:</strong> Размер не влияет на риск</p>", quiz: null },
-  { id: 13, title: "Генетическое тестирование", xp: 50, content: "<h3>BRCA1 и BRCA2</h3><p>Генетические мутации повышают риск.</p><h4>Когда рекомендуется:</h4><ul><li>Семейная история рака груди</li><li>Рак в молодом возрасте</li><li>Несколько случаев в семье</li></ul><h4>Что даёт тестирование:</h4><p>Знание риска для профилактики</p>", quiz: null },
-  { id: 14, title: "Биопсия", xp: 50, content: "<h3>Забор ткани для анализа</h3><p>Биопсия — единственный способ подтвердить диагноз.</p><h4>Виды:</h4><ul><li>Пункционная (тонкой иглой)</li><li>Толстоигольная</li><li>Хирургическая</li></ul><h4>Процесс:</h4><p>Обычно амбулаторно, под местной анестезией</p>", quiz: null },
-  { id: 15, title: "Стадии рака", xp: 50, content: "<h3>Система стадирования</h3><p>Стадия определяет распространённость.</p><h4>0 стадия:</h4><p>Неинвазивный рак (in situ)</p><h4>I стадия:</h4><p>Опухоль до 2 см, без метастазов</p><h4>II стадия:</h4><p>Опухоль 2-5 см или с метастазами в лимфоузлы</p><h4>III-IV:</h4><p>Распространённый рак</p>", quiz: null },
-  { id: 16, title: "Гормонотерапия", xp: 50, content: "<h3>Лечение гормонами</h3><p>Блокировка эстрогена, питающего опухоль.</p><h4>Препараты:</h4><ul><li>Тамоксифен</li><li>Ингибиторы ароматазы</li></ul><h4>Применение:</h4><p>При гормон-позитивном раке</p>", quiz: null },
-  { id: 17, title: "Химиотерапия", xp: 50, content: "<h3>Лекарственное лечение</h3><p>Использование препаратов для уничтожения раковых клеток.</p><h4>Когда применяется:</h4><ul><li>До операции (неоадъювантная)</li><li>После операции (адъювантная)</li><li>При метастазах</li></ul>", quiz: null },
-  { id: 18, title: "Хирургическое лечение", xp: 50, content: "<h3>Виды операций</h3><h4>Лампэктомия:</h4><p>Удаление опухоли с сохранением груди</p><h4>Мастэктомия:</h4><p>Удаление всей молочной железы</p><h4>Реконструкция:</h4><p>Восстановление груди после операции</p>", quiz: null },
-  { id: 19, title: "Лучевая терапия", xp: 50, content: "<h3>Радиотерапия</h3><p>Использование излучения для уничтожения клеток.</p><h4>Применяется после:</h4><ul><li>Лампэктомии</li><li>При метастазах</li></ul><h4>Побочные эффекты:</h4><p>Усталость, изменения кожи</p>", quiz: null },
-  { id: 20, title: "Иммунотерапия", xp: 50, content: "<h3>Новый метод лечения</h3><p>Использование собственной иммунной системы.</p><h4>Принцип:</h4><p>Помочь организму распознавать и атаковать раковые клетки</p><h4>Применение:</h4><p>При определённых типах рака</p>", quiz: null },
-  { id: 21, title: "Жизнь после лечения", xp: 50, content: "<h3>Реабилитация</h3><p>Возвращение к нормальной жизни.</p><h4>Что важно:</h4><ul><li>Регулярное наблюдение</li><li>Здоровый образ жизни</li><li>Психологическая поддержка</li><li>Физическая активность</li></ul>", quiz: null },
-  { id: 22, title: "Психологическая поддержка", xp: 50, content: "<h3>Эмоциональное здоровье</h3><p>Диагноз — стресс для всей семьи.</p><h4>Ресурсы:</h4><ul><li>Психоонколог</li><li>Группы поддержки</li><li>Горячая линия</li></ul>", quiz: null },
-  { id: 23, title: "Поддержка близких", xp: 50, content: "<h3>Как помочь</h3><p>Близкие играют важную роль в выздоровлении.</p><h4>Что делать:</h4><ul><li>Слушать и поддерживать</li><li>Помогать с бытовыми делами</li><li>Ходить на приёмы вместе</li><li>Не давить с советами</li></ul>", quiz: null },
-  { id: 24, title: "Реконструкция груди", xp: 50, content: "<h3>Восстановление</h3><p>Современная медицина позволяет восстановить грудь.</p><h4>Методы:</h4><ul><li>Импланты</li><li>Собственные ткани</li><li>Комбинированные</li></ul><h4>Когда:</h4><p>Одновременно с мастэктомией или позже</p>", quiz: null },
-  { id: 25, title: "Профилактика", xp: 50, content: "<h3>Как снизить риск</h3><ul><li>Поддерживать здоровый вес</li><li>Быть физически активной</li><li>Ограничить алкоголь</li><li>Не курить</li><li>Кормить грудью</li><li>Избегать гормонозаместительной терапии</li></ul>", quiz: null },
-  { id: 26, title: "Скрининговые программы", xp: 50, content: "<h3>В Казахстане</h3><p>Государственная программа скрининга.</p><h4>Кто проходит:</h4><ul><li>Женщины 40-70 лет</li><li>Бесплатно</li><li>Раз в 2 года</li></ul>", quiz: null },
-  { id: 27, title: "Мужской рак груди", xp: 50, content: "<h3>Редко, но бывает</h3><p>Мужчины тоже могут болеть раком груди.</p><h4>Факторы риска:</h4><ul><li>Генетические мутации</li><li>Возраст</li><li>Гинекомастия</li></ul><h4>Симптомы:</h4><p>Уплотнение, изменения соска</p>", quiz: null },
-  { id: 28, title: "Беременность и рак", xp: 50, content: "<h3>Рак при беременности</h3><p>Редкое, но возможное сочетание.</p><h4>Особенности:</h4><ul><li>Диагностика осложнена</li><li>Лечение возможно</li><li>Вынашивание часто сохраняется</li></ul>", quiz: null },
-  { id: 29, title: "Новые исследования", xp: 50, content: "<h3>Достижения науки</h3><p>Медицина не стоит на месте.</p><h4>Тенденции:</h4><ul><li>Персонализированная медицина</li><li>Таргетная терапия</li><li>Ранняя диагностика по крови</li></ul>", quiz: null },
-  { id: 30, title: "Итоги курса", xp: 100, content: "<h3>Поздравляем!</h3><p>Вы прошли 30-дневную программу MammoCare.</p><h4>Что вы узнали:</h4><ul><li>Как проводить самообследование</li><li>Когда проходить маммографию</li><li>Факторы риска и профилактика</li><li>Современные методы лечения</li></ul><p><strong>Продолжайте заботиться о своём здоровье!</strong></p>", quiz: null }
-];
-
-// ========== ДОСТИЖЕНИЯ ==========
-const achievements = {
-  first_steps: { id: "first_steps", title: "Первые шаги", icon: "🌟", req: p => p.completedDays.includes(1) },
-  self_care_expert: { id: "self_care_expert", title: "Эксперт самообследования", icon: "💪", req: p => p.completedDays.includes(2) },
-  week_warrior: { id: "week_warrior", title: "Воин недели", icon: "🔥", req: p => p.completedDays.length >= 7 },
-  knowledge_seeker: { id: "knowledge_seeker", title: "Искатель знаний", icon: "📚", req: p => p.completedDays.length >= 15 },
-  health_champion: { id: "health_champion", title: "Чемпион здоровья", icon: "🏆", req: p => p.completedDays.length >= 30 }
-};
-
-// ========== ПЕРЕВОДЫ ==========
-const translations = {
-  ru: {
-    nav_home: "Главная", nav_learn: "Обучение", nav_articles: "Статьи", nav_cycle: "Цикл", nav_clinics: "Клиники", nav_about: "О нас", nav_account: "Аккаунт",
-    home_welcome: "Добро пожаловать в MammoCare", home_desc: "Осознание сегодня - может спаси жизнь завтра",
-    btn_cycle: "Трекер", btn_clinic: "Клиники", home_risk_label: "Ваш риск", recalc: "Пересчитать",
-    stats_title: "Статистика рака груди", stats_kz: "🇰🇿 Казахстан", stats_kz_desc: "место по заболеваемости среди женщин", stats_world: "🌍 В мире", stats_world_desc: "случаев ежегодно", stats_fact: "Раннее обнаружение повышает выживаемость до 98%",
-    useful_info_title: "Полезная информация", info_self_title: "Самообследование", info_self_desc: "Делайте это раз в месяц. Самообследование занимает 5 минут.", info_age_title: "Скрининг", info_age_desc: "Маммография рекомендована женщинам старше 30 лет.", link_all_articles: "Читать все статьи →",
-    articles_title: "Полезная информация",
-    risk_welcome: "Добро пожаловать!", risk_subtitle: "Ответьте на вопросы", risk_age: "Ваш возраст", risk_weight: "Вес (кг)", risk_height: "Рост (см)", risk_family: "Наследственность", risk_smoke: "Курение", risk_symptoms: "Жалобы",
-    opt_no: "Нет", opt_distant: "Дальние родственники", opt_close: "Мама/сестра", opt_no_smoke: "Не курю", opt_ex_smoke: "Бросила", opt_smoke: "Курю", opt_no_symptoms: "Нет", opt_discomfort: "Дискомфорт", opt_pain: "Уплотнения/боль",
-    btn_calc: "Рассчитать", btn_skip: "Пропустить", btn_continue: "Продолжить", btn_save: "Сохранить", btn_done: "Готово", btn_reset: "Сброс",
-    risk_low: "Низкий риск", risk_moderate: "Умеренный риск", risk_high: "Высокий риск",
-    risk_adv_low: "Продолжайте ЗОЖ.", risk_adv_mod: "Рекомендована консультация.", risk_adv_high: "Срочно к врачу.",
-    learn_title: "30-дневная программа", learn_desc: "Укрепите здоровье шаг за шагом", learn_info: "Один урок в 24 часа. Накапливайте XP.",
-    lesson_open: "Доступно", lesson_locked: "Заблокировано", lesson_completed: "Пройдено",
-    cycle_title: "Настройка трекера", cycle_menstrual: "Менструальный цикл", cycle_menopause: "Менопауза", cycle_date: "Дата последних месячных", cycle_menopause_date: "Дата наступления менопаузы", cycle_len: "Длина цикла (дни)", period_len: "Длина месячных (дни)", cycle_about_menopause: "О менопаузе", cycle_menopause_tip: "После менопаузы риск рака молочной железы увеличивается. Важно:", cycle_meno_mammo: "Регулярно проходить маммографию", cycle_meno_self: "Продолжать самообследование", cycle_meno_weight: "Поддерживать здоровый вес",
-    today: "Сегодня", day: "День", till_period: "до месячных", till_ovulation: "до овуляции",
-    exam_title: "Время самообследования!", exam_desc: "Оптимальный период (5-7 день).",
-    forecast: "Прогноз на 3 месяца",
-    clinics_title: "Клиники маммографии", clinics_desc: "Найдите ближайший центр в Астане.", list: "Список", filter_all: "Все", filter_public: "Гос.", filter_private: "Частные",
-    about_title: "О проекте MammoCare", about_desc: "Проект MammoCare был создан нашей командой девушек как ответ на одну из самых острых и недооценённых проблем здоровья женщин в Казахстане.", mission_title: "Миссия", mission_desc: "Снизить смертность от рака молочной железы за счёт раннего выявления, цифрового мониторинга здоровья и доступной профилактики.", contacts_title: "Контакты",
-    acc_welcome: "Привет,", acc_user: "Участник",
-    alert_exam: "Отлично!", alert_next_lesson: "Урок пройден! +{xp} XP. Следующий через 24 часа.", alert_time_left: "Ждите 24 часа.", alert_cycle_reset: "Данные цикла сброшены.",
-    card_cycle_day: "День цикла", card_next: "След. месячные", card_progress: "Прогресс", card_start_learning: "Начните курс",
-    config: "Настройте", legend_period: "Месячные", legend_ovulation: "Овуляция", edit_settings: "Изменить настройки",
-    menopause_active: "Активный режим", menopause_recommendations: "Рекомендации для вас", menopause_mammo: "Маммография", menopause_mammo_desc: "После менопаузы рекомендуется проходить ежегодно", menopause_self: "Самообследование", menopause_self_desc: "Продолжайте делать ежемесячно", menopause_lifestyle: "Здоровый образ жизни", menopause_lifestyle_desc: "Контролируйте вес, занимайтесь спортом", menopause_reminder: "Напоминание о маммографии", menopause_reminder_text: "Проверьте, когда вы проходили последнюю маммографию.",
-    self_exam_video: "Видео: Как проводить самообследование", self_exam_intro: "Посмотрите видео перед началом"
-  },
-  kz: {
-    nav_home: "Басты", nav_learn: "Оқыту", nav_articles: "Мақалалар", nav_cycle: "Цикл", nav_clinics: "Клиникалар", nav_about: "Біз туралы", nav_account: "Аккаунт",
-    mob_menu: "Мәзір", home_welcome: "MammoCare қош келдіңіз", home_desc: "Сүт безі денсаулығын бақылаңыз.",
-    btn_cycle: "Трекер", btn_clinic: "Клиникалар", home_risk_label: "Тәуекел", recalc: "Қайта",
-    stats_title: "Статистика", stats_kz: "🇰🇿 Қазақстан", stats_kz_desc: "онкология бойынша орын", stats_world: "🌍 Әлемде", stats_world_desc: "жыл сайын", stats_fact: "Ерте анықтау = 98% сауығу",
-    useful_info_title: "Пайдалы білім", info_self_title: "Өзіндік тексеру", info_self_desc: "Айына бір рет. 5 минут.", info_age_title: "Скрининг", info_age_desc: "40 жастан маммография.", link_all_articles: "Мақалалар →",
-    articles_title: "Білім базасы",
-    risk_welcome: "Қош келдіңіз!", risk_subtitle: "Сұрақтарға жауап", risk_age: "Жас", risk_weight: "Салмақ (кг)", risk_height: "Бой (см)", risk_family: "Тұқым", risk_smoke: "Темекі", risk_symptoms: "Шағым",
-    opt_no: "Жоқ", opt_distant: "Алыс туыстар", opt_close: "Ана/әпке", opt_no_smoke: "Тартпаймын", opt_ex_smoke: "Тастадым", opt_smoke: "Тартамын", opt_no_symptoms: "Жоқ", opt_discomfort: "Жайсыздық", opt_pain: "Түйін",
-    btn_calc: "Есептеу", btn_skip: "Өткізу", btn_continue: "Жалғастыру", btn_save: "Сақтау", btn_done: "Дайын", btn_reset: "Тазалау",
-    risk_low: "Төмен", risk_moderate: "Орташа", risk_high: "Жоғары",
-    risk_adv_low: "Сау өмір.", risk_adv_mod: "Дәрігер кеңесі.", risk_adv_high: "Жедел дәрігер.",
-    cycle_title: "Баптау", cycle_menstrual: "Етеккір циклі", cycle_menopause: "Менопауза", cycle_date: "Соңғы етеккір", cycle_menopause_date: "Менопауза басталған күн", cycle_len: "Цикл (күн)", period_len: "Етеккір (күн)", cycle_about_menopause: "Менопауза туралы", cycle_menopause_tip: "Менопаузадан кейін сүт безі обырының қаупі артады. Маңызды:", cycle_meno_mammo: "Маммографиядан жыл сайын өту", cycle_meno_self: "Өзіндік тексеруді жалғастыру", cycle_meno_weight: "Денсаулықты сақтау",
-    today: "Бүгін", day: "Күн", till_period: "етеккірге", till_ovulation: "овуляцияға",
-    exam_title: "Тексеру уақыты!", exam_desc: "5-7 күн.",
-    forecast: "Болжам",
-    clinics_title: "Клиникалар", clinics_desc: "Астана картасы", list: "Тізім",
-    about_title: "Жоба туралы", about_desc: "Біз күресеміз.", mission_title: "Міндет", mission_desc: "Азаюы.", contacts_title: "Байланыс",
-    alert_exam: "Керемет!", alert_next_lesson: "Сабақ аяқталды! +{xp} XP.", alert_time_left: "24 сағат.", alert_cycle_reset: "Цикл тазаланды.",
-    card_cycle_day: "Цикл күні", card_next: "Келесі етеккір", card_progress: "Прогресс", card_start_learning: "Курсты бастаңыз",
-    config: "Баптау", legend_period: "Етеккір", legend_ovulation: "Овуляция", edit_settings: "Өзгерту",
-    menopause_active: "Белсенді режим", menopause_recommendations: "Сіз үшін ұсыныстар", menopause_mammo: "Маммография", menopause_mammo_desc: "Менопаузадан кейін жыл сайын өту ұсынылады", menopause_self: "Өзіндік тексеру", menopause_self_desc: "Ай сайын жалғастырыңыз", menopause_lifestyle: "Денсаулықты сақтау", menopause_lifestyle_desc: "Вес бақылау, спортпен айналысу", menopause_reminder: "Маммография ескертуі", menopause_reminder_text: "Соңғы маммографияңызды тексеріңіз.",
-    self_exam_video: "Видео: Өзіндік тексеру қалай жүргізіледі", self_exam_intro: "Бастамас бұрын видеоны көріңіз"
-  },
-  en: {
-    nav_home: "Home", nav_learn: "Learn", nav_articles: "Articles", nav_cycle: "Cycle", nav_clinics: "Clinics", nav_about: "About", nav_account: "Account",
-    mob_menu: "Menu", home_welcome: "Welcome to MammoCare", home_desc: "Monitor breast health.",
-    btn_cycle: "Tracker", btn_clinic: "Clinics", home_risk_label: "Risk", recalc: "Recalc",
-    stats_title: "Breast Cancer Statistics", stats_kz: "🇰🇿 Kazakhstan", stats_kz_desc: "rank in female oncology", stats_world: "🌍 Worldwide", stats_world_desc: "cases annually", stats_fact: "Early detection = 98% survival",
-    useful_info_title: "Useful Info", info_self_title: "Self-Exam", info_self_desc: "Do it monthly. 5 minutes.", info_age_title: "Screening", info_age_desc: "Mammography after 40.", link_all_articles: "All articles →",
-    articles_title: "Knowledge Base",
-    risk_welcome: "Welcome!", risk_subtitle: "Answer questions", risk_age: "Age", risk_weight: "Weight (kg)", risk_height: "Height (cm)", risk_family: "Heredity", risk_smoke: "Smoking", risk_symptoms: "Symptoms",
-    opt_no: "No", opt_distant: "Distant relatives", opt_close: "Mother/Sister", opt_no_smoke: "Non-smoker", opt_ex_smoke: "Ex-smoker", opt_smoke: "Smoker", opt_no_symptoms: "None", opt_discomfort: "Discomfort", opt_pain: "Lumps",
-    btn_calc: "Calculate", btn_skip: "Skip", btn_continue: "Continue", btn_save: "Save", btn_done: "Done", btn_reset: "Reset",
-    risk_low: "Low Risk", risk_moderate: "Moderate", risk_high: "High Risk",
-    risk_adv_low: "Healthy lifestyle.", risk_adv_mod: "Consult doctor.", risk_adv_high: "Urgent visit.",
-    cycle_title: "Setup", cycle_menstrual: "Menstrual Cycle", cycle_menopause: "Menopause", cycle_date: "Last Period", cycle_menopause_date: "Menopause Date", cycle_len: "Cycle (days)", period_len: "Period (days)", cycle_about_menopause: "About Menopause", cycle_menopause_tip: "After menopause, breast cancer risk increases. Important:", cycle_meno_mammo: "Regular mammography", cycle_meno_self: "Continue self-exam", cycle_meno_weight: "Maintain healthy weight",
-    today: "Today", day: "Day", till_period: "until period", till_ovulation: "until ovulation",
-    exam_title: "Self-exam time!", exam_desc: "Day 5-7.",
-    forecast: "Forecast",
-    clinics_title: "Clinics", clinics_desc: "Astana map", list: "List",
-    about_title: "About", about_desc: "We fight breast cancer.", mission_title: "Mission", mission_desc: "Reduce mortality.", contacts_title: "Contacts",
-    alert_exam: "Great!", alert_next_lesson: "Lesson done! +{xp} XP.", alert_time_left: "Wait 24h.", alert_cycle_reset: "Cycle data reset.",
-    card_cycle_day: "Cycle Day", card_next: "Next Period", card_progress: "Progress", card_start_learning: "Start Course",
-    config: "Configure", legend_period: "Period", legend_ovulation: "Ovulation", edit_settings: "Edit",
-    menopause_active: "Active Mode", menopause_recommendations: "Recommendations for you", menopause_mammo: "Mammography", menopause_mammo_desc: "Annual after menopause", menopause_self: "Self-Exam", menopause_self_desc: "Continue monthly", menopause_lifestyle: "Healthy Lifestyle", menopause_lifestyle_desc: "Control weight, exercise", menopause_reminder: "Mammography Reminder", menopause_reminder_text: "Check your last mammography date.",
-    self_exam_video: "Video: How to do self-exam", self_exam_intro: "Watch video before starting"
-  }
-};
-
-let currentLang = 'ru';
-
-function t(key, params) {
-  let str = translations[currentLang][key] || translations['ru'][key] || key;
-  if (params) { Object.keys(params).forEach(k => str = str.replace(`{${k}}`, params[k])); }
-  return str;
-}
-
-function applyTranslations() {
-  document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if(key) el.textContent = t(key); });
-  renderArticlesGrid();
-  renderLearningGrid();
-  if (cycleData) updateCycleUI();
-  updateHomeStatus();
-  updateAccountUI();
-  updateMenopauseTranslations();
-  updateRiskTranslations();
-}
-
-function updateMenopauseTranslations() {
-  const statusEl = $('menopause-status');
-  const recTitleEl = document.querySelector('#menopause-view h3');
-  const mammoTitleEl = document.querySelector('#menopause-view .font-medium.text-gray-800');
-  const reminderTitleEl = $('menopause-reminder');
-
-  if (statusEl) statusEl.textContent = t('menopause_active');
-  if ($('menopause-duration')) {
-    // Duration will be updated in updateMenopauseUI
-  }
-}
-
-function updateRiskTranslations() {
-  // Update risk modal translations
-  const riskAgeLabel = document.querySelector('#risk-modal label:nth-child(1)');
-  const riskWeightLabel = $('risk-modal').querySelector('label');
-  // Risk translations are applied through form elements
-}
-
-function setLanguage(lang) {
-  currentLang = lang;
-  saveLocal('appLang', lang);
-  const flags = { ru: '🇷🇺', kz: '🇰🇿', en: '🇬🇧' };
-  $('current-lang-flag').textContent = flags[lang];
-  $('lang-dropdown').classList.add('hidden');
-  applyTranslations();
-}
-
-// ========== AUTH MANAGER ==========
-const AuthManager = {
-  async hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password + 'mammocare_salt');
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-  },
-  async register() {
-    const name = $('register-name').value;
-    const email = $('register-email').value;
-    const password = $('register-password').value;
-    const confirm = $('register-confirm').value;
-    const terms = $('terms').checked;
-    const errorEl = $('auth-error');
-
-    if (!name || !email || !password || !confirm) { errorEl.textContent = 'Заполните все поля'; errorEl.classList.remove('hidden'); return; }
-    if (password.length < 8 || !/\d/.test(password)) { errorEl.textContent = 'Пароль: мин. 8 символов, 1 цифра'; errorEl.classList.remove('hidden'); return; }
-    if (password !== confirm) { errorEl.textContent = 'Пароли не совпадают'; errorEl.classList.remove('hidden'); return; }
-    if (!terms) { errorEl.textContent = 'Примите условия'; errorEl.classList.remove('hidden'); return; }
-
-    const users = JSON.parse(localStorage.getItem('users') || '{}');
-    if (users[email]) { errorEl.textContent = 'Email уже зарегистрирован'; errorEl.classList.remove('hidden'); return; }
-
-    const hash = await this.hashPassword(password);
-    const userId = 'user_' + Date.now();
-    users[email] = { userId, name, email, passwordHash: hash, registered: new Date().toISOString() };
-    localStorage.setItem('users', JSON.stringify(users));
-
-    currentUser = users[email];
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    closeAuthModal();
-    updateAuthUI();
-    showSuccess('Аккаунт создан!');
-  },
-  async login() {
-    const email = $('login-email').value;
-    const password = $('login-password').value;
-    const remember = $('remember-me').checked;
-    const errorEl = $('auth-error');
-
-    const users = JSON.parse(localStorage.getItem('users') || '{}');
-    const user = users[email];
-    if (!user) { errorEl.textContent = 'Пользователь не найден'; errorEl.classList.remove('hidden'); return; }
-
-    const hash = await this.hashPassword(password);
-    if (hash !== user.passwordHash) { errorEl.textContent = 'Неверный пароль'; errorEl.classList.remove('hidden'); return; }
-
-    currentUser = { ...user, isLoggedIn: true, remember };
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    closeAuthModal();
-    updateAuthUI();
-    renderAccount();
-    showSuccess('Добро пожаловать!');
-  },
-  logout() {
-    currentUser = null;
-    localStorage.removeItem('currentUser');
-    updateAuthUI();
-    renderAccount();
-    Router.showView('home');
-  },
-  checkAuth() {
-    const saved = localStorage.getItem('currentUser');
-    if (saved) {
-      currentUser = JSON.parse(saved);
-    }
-  }
-};
-
-let currentUser = null;
-
-// ========== LEARNING MANAGER ==========
-const LearningManager = {
-  getProgress() {
-    const key = currentUser ? `progress_${currentUser.userId}` : 'progress_guest';
-    const saved = localStorage.getItem(key);
-    if (saved) return JSON.parse(saved);
-    return { currentDay: 1, totalPoints: 0, streak: 0, completedDays: [], achievements: [], lastDate: null };
-  },
-  saveProgress(progress) {
-    const key = currentUser ? `progress_${currentUser.userId}` : 'progress_guest';
-    localStorage.setItem(key, JSON.stringify(progress));
-  },
-  completeDay(dayNum, score) {
-    const progress = this.getProgress();
-    const lesson = LESSONS.find(l => l.id === dayNum);
-    if (!progress.completedDays.includes(dayNum)) {
-      progress.completedDays.push(dayNum);
-      progress.totalPoints += lesson.points;
-    }
-    progress.currentDay = Math.min(progress.currentDay, dayNum + 1);
-
-    // Check achievements
-    Object.values(achievements).forEach(a => {
-      if (a.req(progress) && !progress.achievements.includes(a.id)) {
-        progress.achievements.push(a.id);
-        setTimeout(() => showAchievement(a), 500);
-      }
-    });
-
-    this.saveProgress(progress);
-    return progress;
-  },
-  canComplete(dayNum) {
-    const progress = this.getProgress();
-    return dayNum <= progress.currentDay + 1 && !progress.completedDays.includes(dayNum);
-  }
-};
-
-// ========== VARS ==========
-let cycleData = null;
-let currentCalendarDate = new Date();
-let map = null;
-let markers = [];
-
-// ========== SELF EXAM LOGIC ==========
-const examSteps = [
-  { text: "Осмотрите грудь в зеркале", check: "Есть ли изменения формы?", risk: 2 },
-  { text: "Поднимите руки вверх", check: "Есть ли втяжения кожи?", risk: 3 },
-  { text: "Проверьте кожу", check: "Покраснение или шелушение?", risk: 2 },
-  { text: "Пальпация груди", check: "Есть ли уплотнения?", risk: 5 },
-  { text: "Проверьте подмышки", check: "Есть ли узлы?", risk: 4 }
-];
-
-let examStep = 0;
-let examAnswers = [];
-
-function openSelfExam() {
-  const last = loadLocal('lastExam');
-  if (last) {
-    const diff = Date.now() - last;
-    if (diff < 86400000) {
-      alert("Вы уже проходили тест сегодня");
-      return;
-    }
-  }
-  examStep = 0;
-  examAnswers = [];
-  $('selfexam-modal').classList.remove('hidden');
-  renderExamStep();
-}
-
-function closeSelfExam() {
-  $('selfexam-modal').classList.add('hidden');
-}
-
-function renderExamStep() {
-  const step = examSteps[examStep];
-  $('selfexam-step').innerHTML = `
-    <p class="font-medium mb-2">${step.text}</p>
-    <p class="text-sm text-gray-600 mb-4">${step.check}</p>
-    <div class="flex gap-2">
-      <button onclick="answerExam(0)" class="flex-1 py-2 bg-green-100 rounded hover:bg-green-200">Нет</button>
-      <button onclick="answerExam(1)" class="flex-1 py-2 bg-red-100 rounded hover:bg-red-200">Да</button>
-    </div>
-    <p class="text-xs mt-3 text-gray-400">Шаг ${examStep + 1}/${examSteps.length}</p>
-  `;
-}
-
-function answerExam(val) {
-  examAnswers.push(val);
-  examStep++;
-  if (examStep >= examSteps.length) {
-    finishExam();
-  } else {
-    renderExamStep();
-  }
-}
-
-function finishExam() {
-  let score = 0;
-  examAnswers.forEach((a, i) => {
-    if (a === 1) score += examSteps[i].risk;
-  });
-
-  let result = "";
-  let color = "";
-  if (score >= 8) { result = "⚠️ Срочно к врачу"; color = "text-red-600"; }
-  else if (score >= 4) { result = "❗ Есть подозрения"; color = "text-yellow-600"; }
-  else { result = "✅ Всё нормально"; color = "text-green-600"; }
-
-  saveLocal('lastExam', Date.now());
-
-  $('selfexam-step').innerHTML = `
-    <p class="font-bold ${color} mb-4 text-lg">${result}</p>
-    <button onclick="closeSelfExam()" class="w-full py-2 bg-gray-200 rounded-lg">Закрыть</button>
-  `;
-}
-
-// ========== UTILS ==========
-function $(id) { return document.getElementById(id); }
-function show(el) { if(el) el.classList.remove('hidden'); }
-function hide(el) { if(el) el.classList.add('hidden'); }
-function saveLocal(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-function loadLocal(key) { const data = localStorage.getItem(key); return data ? JSON.parse(data) : null; }
-function daysBetween(d1, d2) { return Math.round((d2 - d1) / (1000 * 60 * 60 * 24)); }
-function addDays(date, days) { const r = new Date(date); r.setDate(r.getDate() + days); return r; }
-
-// ========== NAVIGATION ==========
-const Router = {
-  showView(viewId) {
-    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-    $(`view-${viewId}`).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelectorAll(`.nav-item[href="#${viewId}"]`).forEach(n => n.classList.add('active'));
-    window.location.hash = viewId;
-    if (viewId === 'clinics') { setTimeout(() => { initMap(); if(map) map.invalidateSize(); }, 100); }
-    if (viewId === 'cycle') updateCycleUI();
-    if (viewId === 'learn') { renderLearning(); }
-    if (viewId === 'articles') renderArticlesGrid();
-    if (viewId === 'account') renderAccount();
-  },
-  handleRoute() {
-    const hash = window.location.hash.replace('#', '') || 'home';
-    this.showView(hash);
-  }
-};
-
-// ========== ARTICLES ==========
-function renderArticlesGrid() {
-    const container = $('articles-grid');
-    if(!container) return;
-    container.innerHTML = articlesData.map(a => `
-        <a href="${a.link}" target="_blank" class="block p-4 border border-gray-200 rounded-lg hover:border-primary transition bg-white">
-            <h4 class="font-bold text-gray-800 mb-1">${a.title}</h4>
-            <p class="text-sm text-gray-500">${a.desc}</p>
-        </a>
-    `).join('');
-}
-
-// ========== LEARNING ==========
-function renderLearning() {
-  const progress = LearningManager.getProgress();
-  const now = Date.now();
-
-  $('user-points').textContent = progress.totalPoints;
-  $('user-streak').textContent = progress.streak;
-  $('progress-text').textContent = `${progress.completedDays.length}/30 дней`;
-  $('progress-bar').style.width = (progress.completedDays.length / 30 * 100) + '%';
-
-  // Render achievements
-  const achGrid = $('achievements-grid');
-  achGrid.innerHTML = Object.values(achievements).map(a => {
-    const unlocked = progress.achievements.includes(a.id);
-    return `<div class="p-3 rounded-xl text-center ${unlocked ? 'bg-yellow-50' : 'bg-gray-100 opacity-50'}">
-      <div class="text-2xl mb-1">${a.icon}</div>
-      <p class="text-xs font-medium">${a.title}</p>
-    </div>`;
-  }).join('');
-
-  // Premium banner after day 5
-  if (progress.completedDays.includes(5)) {
-    $('home-premium-banner').classList.remove('hidden');
-  }
-
-  renderLearningGrid();
-}
-
-function renderLearningGrid() {
-  const container = $('learning-grid');
-  if (!container) return;
-  const progress = LearningManager.getProgress();
-  const now = Date.now();
-
-  container.innerHTML = LESSONS.map(lesson => {
-    const isCompleted = progress.completedDays.includes(lesson.id);
-    const available = LearningManager.canComplete(lesson.id);
-    const locked = !available && !isCompleted;
-
-    return `
-      <div class="lesson-card card p-5 ${isCompleted ? 'completed' : locked ? 'locked' : ''}"
-           ${!locked ? `onclick="openLesson(${lesson.id})"` : ''}>
-        <div class="flex justify-between items-start mb-3">
-          <span class="text-xl font-bold">${lesson.id}</span>
-          <span class="bg-pink-100 text-pink-700 px-2 py-1 rounded-full text-xs font-bold">+${lesson.xp} XP</span>
-        </div>
-        <h3 class="font-bold text-gray-800 mb-1">${lesson.title}</h3>
-        <p class="text-sm text-gray-500 mb-3">
-          ${isCompleted ? '✓ Пройдено' : locked ? '🔒 Заблокировано' : '▶ Доступно'}
-        </p>
-      </div>
-    `;
-  }).join('');
-}
-
-let currentLessonDay = null;
-
-function openLesson(id) {
-  currentLessonDay = id;
-  const lesson = LESSONS.find(l => l.id === id);
-  if (!lesson) return;
-
-  let quizHtml = '';
-  if (lesson.quiz) {
-    quizHtml = `
-      <div class="mt-6 pt-6 border-t">
-        <h4 class="font-semibold mb-3">Проверьте свои знания</h4>
-        ${lesson.quiz.map((q, i) => `
-          <div class="mb-4">
-            <p class="font-medium mb-2">${i + 1}. ${q.q}</p>
-            ${q.options.map((opt, j) => `
-              <label class="flex items-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
-                <input type="radio" name="q${i}" value="${j}"> ${opt}
-              </label>
-            `).join('')}
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  $('lesson-content').innerHTML = `
-    <div class="text-center mb-6">
-      <p class="text-sm text-gray-500">Урок ${lesson.id}</p>
-      <h2 class="text-xl font-bold">${lesson.title}</h2>
-    </div>
-    <div class="prose">
-      ${lesson.content}
-    </div>
-    ${quizHtml}
-    <button onclick="completeLesson()" class="w-full mt-6 py-3 bg-primary text-white rounded-lg font-medium">
-      Завершить урок (+${lesson.xp} XP)
+    <!-- AI CHATBOT -->
+    <button id="ai-btn" class="fixed bottom-5 right-5 z-50 bg-primary text-white p-4 rounded-full shadow-lg hover:bg-pink-600 transition pulse">
+        <i data-feather="message-circle" class="w-6 h-6"></i>
     </button>
-  `;
-  $('lesson-modal').classList.remove('hidden');
-}
 
-function closeLessonModal() {
-  $('lesson-modal').classList.add('hidden');
-  currentLessonDay = null;
-}
-
-function completeLesson() {
-  const progress = LearningManager.completeDay(currentLessonDay, 0);
-  if (progress) {
-    renderLearning();
-    renderLearningGrid();
-    closeLessonModal();
-    updateHomeXP();
-    alert(`+${LESSONS.find(l => l.id === currentLessonDay).xp} XP! Урок пройден!`);
-  }
-}
-
-// ========== RISK ==========
-function calculateRisk() {
-  const age = parseInt($('risk-age').value) || 30;
-  const weight = parseFloat($('risk-weight').value) || 0;
-  const height = parseFloat($('risk-height').value) || 0;
-  const family = parseInt($('risk-family').value) || 0;
-  const smoke = parseInt($('risk-smoke').value) || 0;
-  const symptoms = parseInt($('risk-symptoms').value) || 0;
-
-  let score = 0;
-  if (age >= 60) score += 3; else if (age >= 40) score += 2; else if (age >= 30) score += 1;
-
-  let bmi = 0;
-  if (weight > 0 && height > 0) {
-    bmi = weight / Math.pow(height / 100, 2);
-    if (bmi >= 30) score += 2; else if (bmi >= 25) score += 1;
-  }
-
-  score += family + smoke + symptoms;
-
-  let resultKey = score <= 3 ? "risk_low" : score <= 7 ? "risk_moderate" : "risk_high";
-  let adviceKey = score <= 3 ? "risk_adv_low" : score <= 7 ? "risk_adv_mod" : "risk_adv_high";
-
-  saveLocal('riskData', { level: resultKey, bmi: bmi ? bmi.toFixed(1) : null });
-  saveLocal('riskDone', true);
-
-  $('risk-result-text').textContent = t(resultKey);
-  $('risk-result-advice').textContent = t(adviceKey);
-  $('risk-result').classList.remove('hidden');
-
-  updateHomeRisk(resultKey);
-  updateAccountUI();
-}
-
-function updateHomeRisk(levelKey) {
-    const el = $('home-risk-level');
-    if(el) el.textContent = t(levelKey);
-    const card = $('risk-card');
-    if(card) card.classList.remove('hidden');
-}
-
-function updateHomeXP() {
-    const progress = LearningManager.getProgress();
-    const total = progress.totalPoints || 0;
-    const homeXp = $('home-xp-display');
-    if(homeXp) homeXp.textContent = `${total} XP`;
-}
-
-// ========== CYCLE ==========
-let cycleMode = 'menstrual'; // 'menstrual' or 'menopause'
-
-function loadCycleData() {
-    const saved = loadLocal('cycleData');
-    if (saved) {
-        cycleData = saved;
-        if (cycleData.lastPeriod) {
-            cycleData.lastPeriod = new Date(cycleData.lastPeriod);
-        }
-    }
-    cycleMode = loadLocal('cycleMode') || 'menstrual';
-    return cycleData;
-}
-
-function saveCycleDataFn(data) {
-    cycleData = data;
-    if (cycleMode === 'menstrual') {
-        saveLocal('cycleData', { lastPeriod: data.lastPeriod.toISOString(), cycleLength: data.cycleLength, periodLength: data.periodLength });
-    } else {
-        saveLocal('cycleData', { menopauseDate: data.menopauseDate });
-    }
-    saveLocal('cycleMode', cycleMode);
-}
-
-function setCycleMode(mode) {
-    cycleMode = mode;
-    saveLocal('cycleMode', mode);
-
-    const btnMenstrual = $('mode-menstrual');
-    const btnMenopause = $('mode-menopause');
-    const menstrualSettings = $('menstrual-settings');
-    const menopauseSettings = $('menopause-settings');
-
-    if (mode === 'menstrual') {
-        btnMenstrual.className = 'flex-1 py-2 px-4 border-2 border-primary bg-pink-50 text-primary rounded-lg font-medium';
-        btnMenopause.className = 'flex-1 py-2 px-4 border-2 border-gray-200 text-gray-600 rounded-lg font-medium hover:border-gray-300';
-        if (menstrualSettings) menstrualSettings.classList.remove('hidden');
-        if (menopauseSettings) menopauseSettings.classList.add('hidden');
-    } else {
-        btnMenstrual.className = 'flex-1 py-2 px-4 border-2 border-gray-200 text-gray-600 rounded-lg font-medium hover:border-gray-300';
-        btnMenopause.className = 'flex-1 py-2 px-4 border-2 border-primary bg-blue-50 text-primary rounded-lg font-medium';
-        if (menstrualSettings) menstrualSettings.classList.add('hidden');
-        if (menopauseSettings) menopauseSettings.classList.remove('hidden');
-    }
-}
-
-function updateMenopauseUI() {
-    if (cycleMode !== 'menopause' || !cycleData || !cycleData.menopauseDate) return;
-
-    const menopauseDate = new Date(cycleData.menopauseDate);
-    const today = new Date();
-    const yearsSince = Math.floor((today - menopauseDate) / (365.25 * 24 * 60 * 60 * 1000));
-    const monthsSince = Math.floor((today - menopauseDate) / (30.44 * 24 * 60 * 60 * 1000));
-
-    const durationEl = $('menopause-duration');
-    if (durationEl) {
-        if (yearsSince > 0) {
-            durationEl.textContent = `Менопауза наступила ${yearsSince} ${getYearWord(yearsSince)} назад`;
-        } else if (monthsSince > 0) {
-            durationEl.textContent = `Менопауза наступила ${monthsSince} мес. назад`;
-        } else {
-            durationEl.textContent = 'Менопауза наступила недавно';
-        }
-    }
-}
-
-function getYearWord(n) {
-    if (n === 1) return 'год';
-    if (n >= 2 && n <= 4) return 'года';
-    return 'лет';
-}
-
-function getCycleDay(date = new Date()) {
-  if (!cycleData) return null;
-  let periodStart = new Date(cycleData.lastPeriod);
-  while (addDays(periodStart, cycleData.cycleLength) <= date) { periodStart = addDays(periodStart, cycleData.cycleLength); }
-  return daysBetween(periodStart, date) + 1;
-}
-
-function getDayPhase(date) {
-  if (!cycleData) return null;
-  let periodStart = new Date(cycleData.lastPeriod);
-  while (addDays(periodStart, cycleData.cycleLength) <= date) periodStart = addDays(periodStart, cycleData.cycleLength);
-  while (periodStart > date) periodStart = addDays(periodStart, -cycleData.cycleLength);
-  const cycleDay = daysBetween(periodStart, date) + 1;
-  const ovulationDay = cycleData.cycleLength - 14;
-  if (cycleDay <= cycleData.periodLength) return 'period';
-  if (cycleDay === ovulationDay) return 'ovulation';
-  if (cycleDay >= 5 && cycleDay <= 7) return 'exam';
-  return null;
-}
-
-function updateCycleUI() {
-  loadCycleData();
-
-  // Установить режим кнопок
-  setCycleMode(cycleMode);
-
-  if (!cycleData || !cycleData.lastPeriod && !cycleData.menopauseDate) {
-      show($('cycle-setup'));
-      hide($('cycle-calendar-container'));
-      return;
-  }
-
-  hide($('cycle-setup'));
-  show($('cycle-calendar-container'));
-
-  // Показать нужный режим
-  const menstrualView = $('menstrual-view');
-  const menopauseView = $('menopause-view');
-
-  if (cycleMode === 'menopause') {
-    if (menstrualView) menstrualView.classList.add('hidden');
-    if (menopauseView) menopauseView.classList.remove('hidden');
-    updateMenopauseUI();
-    return;
-  } else {
-    if (menstrualView) menstrualView.classList.remove('hidden');
-    if (menopauseView) menopauseView.classList.add('hidden');
-  }
-
-  const today = new Date();
-  const cycleDay = getCycleDay(today);
-
-  const cycleDayEl = $('current-cycle-day');
-  if(cycleDayEl) cycleDayEl.textContent = cycleDay;
-
-  let next = new Date(cycleData.lastPeriod);
-  while (next <= today) next = addDays(next, cycleData.cycleLength);
-
-  const daysToPeriodEl = $('days-to-period');
-  if(daysToPeriodEl) daysToPeriodEl.textContent = daysBetween(today, next);
-
-  const ovulationDate = addDays(next, -14);
-  const daysToOvulationEl = $('days-to-ovulation');
-  if(daysToOvulationEl) daysToOvulationEl.textContent = Math.max(0, daysBetween(today, ovulationDate));
-
-  const reminder = $('exam-reminder');
-  if (cycleDay >= 5 && cycleDay <= 7) show(reminder);
-  else hide(reminder);
-
-  updateHomeStatus();
-  renderCalendar();
-  renderForecast();
-}
-
-function updateHomeStatus() {
-  const cycleDay = getCycleDay();
-  if (cycleDay && cycleData) {
-    const homeDay = $('home-cycle-day');
-    if(homeDay) homeDay.textContent = cycleDay;
-
-    let next = new Date(cycleData.lastPeriod);
-    while (next <= new Date()) next = addDays(next, cycleData.cycleLength);
-
-    const nextPeriodEl = $('home-next-period');
-    if(nextPeriodEl) nextPeriodEl.textContent = next.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-
-    const countdown = $('home-period-countdown');
-    if(countdown) countdown.textContent = `${daysBetween(new Date(), next)} дн.`;
-  }
-}
-
-function renderCalendar() {
-  const grid = $('calendar-grid');
-  if (!grid) return;
-
-  const year = currentCalendarDate.getFullYear();
-  const month = currentCalendarDate.getMonth();
-  const months = {
-      ru: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
-      kz: ["Қаңтар", "Ақпан", "Наурыз", "Сәуір", "Мамыр", "Маусым", "Шілде", "Тамыз", "Қыркүйек", "Қазан", "Қараша", "Желтоқсан"],
-      en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-  };
-
-  const monthYearEl = $('calendar-month-year');
-  if(monthYearEl) monthYearEl.textContent = `${months[currentLang]?.[month] || months.ru[month]} ${year}`;
-
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  let startDay = firstDay.getDay() - 1; if (startDay < 0) startDay = 6;
-  const today = new Date();
-  let html = '';
-  for (let i = 0; i < startDay; i++) html += `<div class="calendar-day"></div>`;
-  for (let day = 1; day <= lastDay.getDate(); day++) {
-    const date = new Date(year, month, day);
-    const phase = getDayPhase(date);
-    const isToday = date.toDateString() === today.toDateString();
-    let classes = 'calendar-day';
-    if (isToday) classes += ' today';
-    if (phase) classes += ` ${phase}`;
-    html += `<div class="${classes}">${day}</div>`;
-  }
-  grid.innerHTML = html;
-}
-
-function renderForecast() {
-    const container = $('forecast-list');
-    if(!container || !cycleData) return;
-    let next = new Date(cycleData.lastPeriod);
-    while (next <= new Date()) next = addDays(next, cycleData.cycleLength);
-    let html = '';
-    for(let i=0; i<3; i++) {
-        const start = next; const end = addDays(start, cycleData.periodLength - 1);
-        html += `<div class="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
-            <span class="font-medium text-gray-700">${start.toLocaleDateString('ru-RU', { month: 'long' })}</span>
-            <span class="text-sm text-gray-500">${start.getDate()} - ${end.getDate()}</span>
-        </div>`;
-        next = addDays(next, cycleData.cycleLength);
-    }
-    container.innerHTML = html;
-}
-
-// ========== CLINICS ==========
-function initMap() {
-    if (map) return;
-    const mapEl = $('map');
-    if (!mapEl) return;
-    map = L.map('map').setView([51.128, 71.430], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    renderClinics();
-}
-
-function renderClinics() {
-  if (!map) return;
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
-
-  const searchEl = $('search-clinics');
-  const typeEl = $('filter-type');
-
-  const search = searchEl?.value.toLowerCase() || '';
-  const type = typeEl?.value || '';
-
-  const filtered = clinicsData.filter(c => {
-    const matchSearch = !search || c.name.toLowerCase().includes(search) || c.address.toLowerCase().includes(search);
-    const matchType = !type || c.type === type;
-    return matchSearch && matchType;
-  });
-
-  filtered.forEach(c => {
-    const m = L.marker([c.lat, c.lng]).addTo(map).bindPopup(`<b>${c.name}</b><br>${c.address}`);
-    markers.push(m);
-  });
-
-  const listEl = $('clinics-list');
-  if(listEl) {
-      listEl.innerHTML = filtered.map(c => `
-        <div class="p-3 border rounded-lg hover:border-primary cursor-pointer bg-white" onclick="focusClinic(${c.lat}, ${c.lng})">
-          <p class="font-medium">${c.name}</p>
-          <p class="text-xs text-gray-500">${c.address}</p>
+    <div id="ai-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col">
+            <div class="p-4 border-b flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                        <i data-feather="cpu" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold">AI Assistant</p>
+                        <p class="text-xs text-gray-500">MammoCare</p>
+                    </div>
+                </div>
+                <button id="ai-close" class="text-gray-400 hover:text-gray-600">
+                    <i data-feather="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div id="ai-messages" class="flex-1 overflow-y-auto p-4 space-y-4 min-h-[300px]"></div>
+            <div class="p-4 border-t">
+                <div class="flex gap-2">
+                    <input type="text" id="ai-input" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg" data-i18n-placeholder="ai_placeholder" placeholder="Задайте вопрос...">
+                    <button id="ai-send" class="p-2 bg-primary text-white rounded-lg hover:bg-pink-600">
+                        <i data-feather="send" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-      `).join('');
-  }
-
-  if (filtered.length > 0) {
-    const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
-    map.fitBounds(bounds, {padding: [20, 20]});
-  }
-}
-
-function focusClinic(lat, lng) {
-    if(map) {
-        map.setView([lat, lng], 16);
-        markers.forEach(m => {
-            if(Math.abs(m.getLatLng().lat - lat) < 0.001) m.openPopup();
-        });
-    }
-}
-
-// ========== ACCOUNT ==========
-function updateAccountUI() {
-  const riskData = loadLocal('riskData');
-  const progress = LearningManager.getProgress();
-
-  const xp = progress.totalPoints || 0;
-  $('account-points').textContent = xp;
-  $('account-streak').textContent = progress.streak;
-  $('account-days').textContent = progress.completedDays.length;
-  $('account-achievements').textContent = progress.achievements.length;
-}
-
-function renderAccount() {
-  if (currentUser) {
-    $('account-logged-in').classList.remove('hidden');
-    $('account-not-logged').classList.add('hidden');
-    $('account-name').textContent = currentUser.name;
-    $('account-email').textContent = currentUser.email;
-    $('account-since').textContent = currentUser.registered ? new Date(currentUser.registered).toLocaleDateString() : 'N/A';
-  } else {
-    $('account-logged-in').classList.add('hidden');
-    $('account-not-logged').classList.remove('hidden');
-  }
-  updateAccountUI();
-}
-
-function updateAuthUI() {
-  const btn = $('auth-btn');
-  if (btn) {
-    if (currentUser) {
-      btn.innerHTML = `<i data-feather="user-check" class="w-4 h-4"></i><span>${currentUser.name}</span>`;
-      btn.onclick = () => Router.showView('account');
-    } else {
-      btn.innerHTML = `<i data-feather="user" class="w-4 h-4"></i><span>Войти</span>`;
-      btn.onclick = showAuthModal;
-    }
-    feather.replace();
-  }
-}
-
-function showAuthModal() {
-  $('auth-modal').classList.remove('hidden');
-  showLoginForm();
-}
-
-function closeAuthModal() {
-  $('auth-modal').classList.add('hidden');
-  $('auth-error').classList.add('hidden');
-  $('auth-success').classList.add('hidden');
-}
-
-function showLoginForm() {
-  $('login-form').classList.remove('hidden');
-  $('register-form').classList.add('hidden');
-  $('password-reset-form').classList.add('hidden');
-  $('auth-modal-title').textContent = 'Вход';
-}
-
-function showRegisterForm() {
-  $('login-form').classList.add('hidden');
-  $('register-form').classList.remove('hidden');
-  $('password-reset-form').classList.add('hidden');
-  $('auth-modal-title').textContent = 'Регистрация';
-}
-
-function showPasswordReset() {
-  $('login-form').classList.add('hidden');
-  $('register-form').classList.add('hidden');
-  $('password-reset-form').classList.remove('hidden');
-}
-
-function requestPasswordReset() {
-  const email = $('reset-email').value;
-  if (email) {
-    $('auth-success').textContent = 'Инструкции отправлены на email';
-    $('auth-success').classList.remove('hidden');
-  }
-}
-
-function showSuccess(msg) {
-  const el = $('auth-success');
-  el.textContent = msg;
-  el.classList.remove('hidden');
-  setTimeout(() => closeAuthModal(), 1000);
-}
-
-function showChangePasswordModal() {
-  alert('Функция изменения пароля: свяжитесь с support@mammocare.kz');
-}
-
-// Achievements modal
-function showAchievement(achievement) {
-  $('achievement-icon').textContent = achievement.icon;
-  $('achievement-title').textContent = achievement.title;
-  $('achievement-desc').textContent = achievement.icon + ' ' + achievement.title;
-  $('achievement-modal').classList.remove('hidden');
-}
-
-function closeAchievementModal() {
-  $('achievement-modal').classList.add('hidden');
-}
-
-// Premium modal
-function showPremiumModal() {
-  $('premium-modal').classList.remove('hidden');
-}
-
-function closePremiumModal() {
-  $('premium-modal').classList.add('hidden');
-}
-
-function clearAllData() { if(confirm('Сбросить всё?')) { localStorage.clear(); location.reload(); } }
-
-function resetCycleData() {
-    if(confirm('Сбросить настройки цикла?')) {
-        localStorage.removeItem('cycleData');
-        cycleData = null;
-        show($('cycle-setup'));
-        hide($('cycle-calendar-container'));
-        updateHomeStatus();
-    }
-}
-
-// ========== AI CHATBOT ==========
-function sendAIMessage() {
-  const input = $('ai-input');
-  const text = input.value.trim();
-  if (!text) return;
-
-  const container = $('ai-messages');
-
-  container.insertAdjacentHTML('beforeend', `
-    <div class="bg-primary text-white p-3 rounded-2xl rounded-tr-none ml-auto max-w-[80%] break-words">
-      ${text}
     </div>
-  `);
 
-  input.value = '';
-  container.scrollTop = container.scrollHeight;
-
-  const typingId = 'typing-' + Date.now();
-  container.insertAdjacentHTML('beforeend', `
-    <div id="${typingId}" class="bg-white p-3 rounded-2xl rounded-tl-none max-w-[80%] text-gray-400 italic">
-      Печатает...
+    <!-- MOBILE BOTTOM NAV -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+        <div class="flex justify-around py-2">
+            <a href="#home" class="nav-item flex flex-col items-center p-2" data-view="home">
+                <i data-feather="home" class="w-5 h-5"></i>
+                <span class="text-xs mt-1" data-i18n="nav_home">Главная</span>
+            </a>
+            <a href="#learn" class="nav-item flex flex-col items-center p-2" data-view="learn">
+                <i data-feather="award" class="w-5 h-5"></i>
+                <span class="text-xs mt-1" data-i18n="nav_learn">Обучение</span>
+            </a>
+            <a href="#cycle" class="nav-item flex flex-col items-center p-2" data-view="cycle">
+                <i data-feather="calendar" class="w-5 h-5"></i>
+                <span class="text-xs mt-1" data-i18n="nav_cycle">Трекер</span>
+            </a>
+            <a href="#clinics" class="nav-item flex flex-col items-center p-2" data-view="clinics">
+                <i data-feather="map" class="w-5 h-5"></i>
+                <span class="text-xs mt-1" data-i18n="nav_clinics">Клиники</span>
+            </a>
+            <a href="#account" class="nav-item flex flex-col items-center p-2" data-view="account">
+                <i data-feather="user" class="w-5 h-5"></i>
+                <span class="text-xs mt-1" data-i18n="nav_account">Аккаунт</span>
+            </a>
+        </div>
     </div>
-  `);
 
-  container.scrollTop = container.scrollHeight;
+    <!-- PWA SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS9_Ev32yr6q4801I5YOxzaFezW7SEYg4",
+            authDomain: "mammocare.firebaseapp.com",
+            projectId: "mammocare",
+            storageBucket: "mammocare.appspot.com",
+            messagingSenderId: "440171934985",
+            appId: "1:440171934985:web:dab31a294e12636fd94fd8"
+        };
+
+        let firebaseApp = null;
+        let messaging = null;
 
-  setTimeout(() => {
-    document.getElementById(typingId)?.remove();
-    const response = generateAIResponse(text);
-    container.insertAdjacentHTML('beforeend', `
-      <div class="bg-white p-3 rounded-2xl rounded-tl-none max-w-[80%]">
-        ${response}
-      </div>
-    `);
-    container.scrollTop = container.scrollHeight;
-  }, 1000 + Math.random() * 800);
-}
-
-function generateAIResponse(text) {
-  const t = text.toLowerCase();
-
-  if (t.includes("боль") || t.includes("уплот") || t.includes("шиш")) {
-    return `Это может быть важный симптом.<br><br>
-      ⚠️ Если вы чувствуете уплотнение или боль — рекомендуется обратиться к врачу и сделать УЗИ или маммографию.<br><br>
-      Не откладывайте — ранняя диагностика критически важна.`;
-  }
-
-  if (t.includes("цикл") || t.includes("месяч")) {
-    return `Менструальный цикл в норме длится 21–35 дней.<br><br>
-      📅 Лучшее время для самообследования груди — 5–7 день цикла.<br><br>
-      В вашем приложении есть трекер — используйте его для точного контроля.`;
-  }
-
-  if (t.includes("рак") || t.includes("онко")) {
-    return `Рак молочной железы — одно из самых распространённых заболеваний у женщин.<br><br>
-      ❗ Но при раннем выявлении выживаемость достигает 90–98%.<br><br>
-      Регулярные проверки — ключ к безопасности.`;
-  }
-
-  if (t.includes("где") || t.includes("клиник") || t.includes("маммограф")) {
-    return `Вы можете открыть раздел "Клиники" в приложении 📍<br><br>
-      Там показаны ближайшие центры маммографии в Астане с картой.`;
-  }
-
-  if (t.includes("что делать") || t.includes("совет")) {
-    return `Общие рекомендации:<br><br>
-      • Делайте самообследование раз в месяц<br>
-      • Проходите УЗИ/маммографию по возрасту<br>
-      • Следите за изменениями<br><br>
-      Если есть сомнения — лучше проверить.`;
-  }
-
-  return `Я могу помочь с вопросами о здоровье груди, симптомах и профилактике.<br><br>
-    Задайте вопрос — я постараюсь дать полезную рекомендацию. 💗`;
-}
-
-// ========== INIT ==========
-document.addEventListener('DOMContentLoaded', () => {
-  if (window.feather) feather.replace();
-
-  const savedLang = loadLocal('appLang');
-  if (savedLang) currentLang = savedLang;
-  setLanguage(currentLang);
-
-  // Auth
-  AuthManager.checkAuth();
-  updateAuthUI();
-  renderAccount();
-
-  // Router
-  window.addEventListener('hashchange', () => Router.handleRoute());
-  Router.handleRoute();
-
-  // Learning
-  loadCycleData();
-  updateHomeStatus();
-  updateHomeXP();
-
-  // Nav clicks
-  document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('click', () => {
-          $('mobile-menu')?.classList.add('hidden');
-      });
-  });
-
-  $('mobile-menu-btn')?.addEventListener('click', () => $('mobile-menu')?.classList.remove('hidden'));
-  $('close-mobile-menu')?.addEventListener('click', () => $('mobile-menu')?.classList.add('hidden'));
-
-  $('calculate-risk-btn')?.addEventListener('click', calculateRisk);
-  $('skip-risk-btn')?.addEventListener('click', () => hide($('risk-modal')));
-  $('continue-after-risk')?.addEventListener('click', () => hide($('risk-modal')));
-  $('recalculate-risk')?.addEventListener('click', () => show($('risk-modal')));
-
-  $('save-cycle-settings')?.addEventListener('click', () => {
-    if (cycleMode === 'menopause') {
-      const val = $('setup-menopause-date').value;
-      if (!val) return alert('Введите дату наступления менопаузы');
-      saveCycleDataFn({ menopauseDate: val });
-      updateCycleUI();
-    } else {
-      const val = $('setup-last-period').value;
-      if (!val) return alert('Введите дату');
-      saveCycleDataFn({ lastPeriod: new Date(val), cycleLength: parseInt($('setup-cycle-length').value) || 28, periodLength: parseInt($('setup-period-length').value) || 5 });
-      updateCycleUI();
-    }
-  });
-
-  $('reset-cycle-btn')?.addEventListener('click', resetCycleData);
-  $('edit-cycle-settings')?.addEventListener('click', () => { show($('cycle-setup')); hide($('cycle-calendar-container')); });
-
-  $('prev-month')?.addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth()-1); renderCalendar(); });
-  $('next-month')?.addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth()+1); renderCalendar(); });
-
-  $('lang-btn')?.addEventListener('click', (e) => { e.stopPropagation(); $('lang-dropdown')?.classList.toggle('hidden'); });
-  document.addEventListener('click', () => hide($('lang-dropdown')));
-
-  $('ai-btn')?.addEventListener('click', () => show($('ai-modal')));
-  $('ai-close')?.addEventListener('click', () => hide($('ai-modal')));
-  $('ai-send')?.addEventListener('click', sendAIMessage);
-  $('ai-input')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendAIMessage(); });
-
-  $('search-clinics')?.addEventListener('input', renderClinics);
-  $('filter-type')?.addEventListener('change', renderClinics);
-
-  $('exam-done-btn')?.addEventListener('click', () => { hide($('exam-reminder')); alert('Отлично!'); });
-
-  if (!loadLocal('riskDone')) setTimeout(() => show($('risk-modal')), 500);
-
-  // Password strength
-  $('register-password')?.addEventListener('input', function() {
-    const bar = $('password-strength-bar');
-    const len = this.value.length;
-    let strength = 0;
-    if (len >= 8) strength += 50;
-    if (/\d/.test(this.value)) strength += 50;
-    bar.style.width = strength + '%';
-    bar.style.background = strength < 50 ? '#ef4444' : strength < 100 ? '#f59e0b' : '#10b981';
-  });
-});
-</script>
-
-
-<script>
-/**
- * Iframe 元素高亮注入脚本
- * 需要在目标网站中引入此脚本来支持跨域 iframe 高亮功能
- *
- * 使用方法：
- * 1. 将此脚本添加到目标网站的 HTML 中
- * 2. 或通过浏览器扩展、用户脚本等方式注入
- */
-
-(function () {
-  "use strict";
-
-  // 检查是否在 iframe 中
-  if (window.self === window.top) {
-    return; // 不在 iframe 中，不执行
-  }
-
-  // 检查是否已经初始化过
-  if (window.__iframeHighlightInitialized) {
-    return;
-  }
-  window.__iframeHighlightInitialized = true;
-  console.log("Iframe 高亮脚本已加载");
-
-  // 创建高亮覆盖层
-  var overlay = document.createElement("div");
-  overlay.id = "iframe-highlight-overlay";
-  overlay.style.cssText = "\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    pointer-events: none;\n    z-index: 999999;\n    overflow: hidden;\n  ";
-
-  // 创建悬停高亮框（虚线边框）
-  var highlightBox = document.createElement("div");
-  highlightBox.id = "iframe-highlight-box";
-  highlightBox.style.cssText = "\n    position: absolute;\n    border: 2px dashed #007AFF;\n    background: rgba(0, 122, 255, 0.08);\n    pointer-events: none;\n    display: none;\n    transition: all 0.1s ease;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);\n    border-radius: 2px;\n  ";
-
-  // 创建选中节点的常驻高亮框（实线边框）
-  var selectedBox = document.createElement("div");
-  selectedBox.id = "iframe-selected-box";
-  selectedBox.style.cssText = "\n    position: absolute;\n    border: 2px solid #007AFF;\n    pointer-events: none;\n    display: none;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 107, 53, 0.4);\n    border-radius: 2px;\n    z-index: 1000000;\n  ";
-
-  // 创建悬停标签显示
-  var tagLabel = document.createElement("div");
-  tagLabel.id = "iframe-tag-label";
-  tagLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 2px 6px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 2px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000001;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);\n    font-weight: 500;\n  ";
-
-  // 创建选中节点标签
-  var selectedLabel = document.createElement("div");
-  selectedLabel.id = "iframe-selected-label";
-  selectedLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 3px 8px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 3px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000002;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\n    font-weight: 600;\n  ";
-  overlay.appendChild(highlightBox);
-  overlay.appendChild(selectedBox);
-  overlay.appendChild(tagLabel);
-  overlay.appendChild(selectedLabel);
-  document.body.appendChild(overlay);
-
-  // 存储当前选中的元素
-  var selectedElement = null;
-  var highlightEnabled = false;
-
-  // 更新选中元素的高亮显示
-  function updateSelectedHighlight(element) {
-    console.log("updateSelectedHighlight called with:", element);
-    if (!element) {
-      selectedBox.style.display = "none";
-      selectedLabel.style.display = "none";
-      selectedElement = null;
-      console.log("Cleared selected highlight");
-      return;
-    }
-    selectedElement = element;
-    var rect = element.getBoundingClientRect();
-    console.log("Selected element rect:", rect);
-
-    // 更新选中高亮框位置
-    selectedBox.style.display = "block";
-    selectedBox.style.left = "".concat(rect.left - 2, "px");
-    selectedBox.style.top = "".concat(rect.top - 2, "px");
-    selectedBox.style.width = "".concat(rect.width + 4, "px");
-    selectedBox.style.height = "".concat(rect.height + 4, "px");
-
-    // 更新选中标签位置和内容
-    selectedLabel.style.display = "block";
-    selectedLabel.textContent = "\u2713 <".concat(element.tagName.toLowerCase(), ">");
-
-    // 计算标签位置，确保不超出视窗
-    var labelTop = rect.top - 28;
-    var labelLeft = rect.left;
-
-    // 如果标签会超出顶部，显示在元素下方
-    if (labelTop < 5) {
-      labelTop = rect.bottom + 5;
-    }
-
-    // 如果标签会超出右侧，向左调整
-    var labelWidth = selectedLabel.offsetWidth || 100; // 预估宽度
-    if (labelLeft + labelWidth > window.innerWidth - 10) {
-      labelLeft = window.innerWidth - labelWidth - 10;
-    }
-    selectedLabel.style.left = "".concat(Math.max(5, labelLeft), "px");
-    selectedLabel.style.top = "".concat(labelTop, "px");
-    console.log("Selected highlight positioned at:", {
-      left: selectedBox.style.left,
-      top: selectedBox.style.top,
-      width: selectedBox.style.width,
-      height: selectedBox.style.height
-    });
-  }
-  function getElementSelector(element) {
-    if (!(element instanceof Element)) throw new Error('Argument must be a DOM element');
-    var segments = [];
-    var current = element;
-    while (current !== document.documentElement) {
-      var selector = '';
-      // 优先检查唯一ID
-      if (current.id && document.querySelectorAll("#".concat(current.id)).length === 1) {
-        segments.unshift("#".concat(current.id));
-        break; // ID唯一，无需继续向上
-      }
-
-      // 生成类名选择器（取第一个有效类名）
-      var classes = Array.from(current.classList).filter(function (c) {
-        return !c.startsWith('js-');
-      });
-      var className = classes.length > 0 ? ".".concat(classes[0]) : '';
-
-      // 生成位置索引（nth-child）
-      var tag = current.tagName.toLowerCase();
-      if (!className) {
-        var siblings = Array.from(current.parentNode.children);
-        var index = siblings.findIndex(function (el) {
-          return el === current;
-        }) + 1;
-        selector = "".concat(tag, ":nth-child(").concat(index, ")");
-      } else {
-        selector = className;
-      }
-      segments.unshift(selector);
-      current = current.parentElement;
-    }
-
-    // 处理根元素
-    if (current === document.documentElement) {
-      segments.unshift('html');
-    }
-    return segments.join(' > ');
-  }
-
-  // 获取元素文本内容
-  function getElementText(element) {
-    var _element$textContent;
-    if (element.tagName === "INPUT") {
-      return element.value || element.placeholder || "";
-    }
-    if (element.tagName === "TEXTAREA") {
-      return element.value || element.placeholder || "";
-    }
-    var text = ((_element$textContent = element.textContent) === null || _element$textContent === void 0 ? void 0 : _element$textContent.trim()) || "";
-    return text.length > 50 ? text.substring(0, 50) + "..." : text;
-  }
-
-  // 获取元素属性信息
-  function getElementAttributes(element) {
-    var attrs = {};
-    for (var i = 0; i < element.attributes.length; i++) {
-      var attr = element.attributes[i];
-      attrs[attr.name] = attr.value;
-    }
-    return attrs;
-  }
-
-  // 鼠标悬停事件处理
-  function handleMouseOver(e) {
-    if (!highlightEnabled) return;
-    var target = e.target;
-    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
-      return;
-    }
-
-    // 避免高亮 html 和 body 元素
-    if (target === document.documentElement || target === document.body) {
-      return;
-    }
-
-    // 如果是已选中的元素，不显示悬停高亮
-    if (target === selectedElement) {
-      highlightBox.style.display = "none";
-      tagLabel.style.display = "none";
-      return;
-    }
-    var rect = target.getBoundingClientRect();
-    var selector = getElementSelector(target);
-    var text = getElementText(target);
-    var attributes = getElementAttributes(target);
-
-    // 更新悬停高亮框位置
-    highlightBox.style.display = "block";
-    highlightBox.style.left = "".concat(rect.left - 2, "px");
-    highlightBox.style.top = "".concat(rect.top - 2, "px");
-    highlightBox.style.width = "".concat(rect.width + 4, "px");
-    highlightBox.style.height = "".concat(rect.height + 4, "px");
-
-    // 更新标签位置和内容
-    tagLabel.style.display = "block";
-    tagLabel.textContent = "<".concat(target.tagName.toLowerCase(), ">");
-
-    // 计算标签位置，确保不超出视窗
-    var labelTop = rect.top - 22;
-    var labelLeft = rect.left;
-
-    // 如果标签会超出顶部，显示在元素下方
-    if (labelTop < 0) {
-      labelTop = rect.bottom + 5;
-    }
-
-    // 如果标签会超出右侧，向左调整
-    if (labelLeft + tagLabel.offsetWidth > window.innerWidth) {
-      labelLeft = window.innerWidth - tagLabel.offsetWidth - 5;
-    }
-    tagLabel.style.left = "".concat(Math.max(0, labelLeft), "px");
-    tagLabel.style.top = "".concat(labelTop, "px");
-
-    // 发送消息到父窗口
-    var elementInfo = {
-      tagName: target.tagName.toLowerCase(),
-      rect: {
-        left: rect.left,
-        top: rect.top,
-        right: rect.right,
-        bottom: rect.bottom,
-        width: rect.width,
-        height: rect.height,
-        x: rect.x,
-        y: rect.y
-      },
-      selector: selector,
-      text: text,
-      attributes: attributes,
-      url: window.location.href,
-      path: window.location.pathname,
-      timestamp: Date.now()
-    };
-    try {
-      window.parent.postMessage({
-        type: "iframe-element-hover",
-        data: elementInfo,
-        source: "iframe-highlight-injector"
-      }, "*");
-    } catch (error) {
-      console.warn("无法发送消息到父窗口:", error);
-    }
-  }
-
-  // 鼠标离开事件处理
-  function handleMouseOut(e) {
-    if (!highlightEnabled) return;
-    var relatedTarget = e.relatedTarget;
-
-    // 如果鼠标移动到高亮相关元素上，不隐藏高亮
-    if (relatedTarget && (relatedTarget === highlightBox || relatedTarget === tagLabel || relatedTarget === overlay || relatedTarget === selectedBox || relatedTarget === selectedLabel)) {
-      return;
-    }
-    highlightBox.style.display = "none";
-    tagLabel.style.display = "none";
-    try {
-      window.parent.postMessage({
-        type: "iframe-element-hover",
-        data: null,
-        source: "iframe-highlight-injector"
-      }, "*");
-    } catch (error) {
-      console.warn("无法发送消息到父窗口:", error);
-    }
-  }
-
-  // 点击事件处理
-  function handleClick(e) {
-    var target = e.target;
-    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
-      return;
-    }
-
-    // 避免处理 html 和 body 元素
-    if (target === document.documentElement || target === document.body) {
-      return;
-    }
-
-    // 检查是否是交互元素，这些元素需要保留默认行为
-    var isInteractiveElement = ['input', 'textarea', 'select', 'button', 'a'].includes(target.tagName.toLowerCase());
-
-    // 如果高亮功能启用，对于非交互元素阻止默认行为和事件传播
-    if (highlightEnabled) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    var rect = target.getBoundingClientRect();
-    var selector = getElementSelector(target);
-    var text = getElementText(target);
-    var attributes = getElementAttributes(target);
-    console.log("Element clicked:", {
-      tagName: target.tagName,
-      selector: selector,
-      rect: rect
-    });
-
-    // 立即更新选中高亮
-    updateSelectedHighlight(target);
-
-    // 隐藏悬停高亮，因为现在是选中状态
-    highlightBox.style.display = "none";
-    tagLabel.style.display = "none";
-    var elementInfo = {
-      tagName: target.tagName.toLowerCase(),
-      rect: {
-        left: rect.left,
-        top: rect.top,
-        right: rect.right,
-        bottom: rect.bottom,
-        width: rect.width,
-        height: rect.height,
-        x: rect.x,
-        y: rect.y
-      },
-      selector: selector,
-      text: text,
-      attributes: attributes,
-      url: window.location.href,
-      path: window.location.pathname,
-      timestamp: Date.now()
-    };
-    try {
-      window.parent.postMessage({
-        type: "iframe-element-click",
-        data: elementInfo,
-        source: "iframe-highlight-injector"
-      }, "*");
-    } catch (error) {
-      console.warn("无法发送消息到父窗口:", error);
-    }
-  }
-
-  // 监听来自父窗口的消息
-  function handleParentMessage(event) {
-    console.log("Received message from parent:", event.data);
-    if (event.data.type === "iframe-highlight-toggle") {
-      var enabled = event.data.enabled;
-      console.log("Highlight toggle:", enabled);
-      if (enabled) {
-        enableHighlight();
-      } else {
-        disableHighlight();
-      }
-    } else if (event.data.type === "enable-iframe-highlight") {
-      console.log("Enable iframe highlight");
-      enableHighlight();
-    } else if (event.data.type === "disable-iframe-highlight") {
-      console.log("Disable iframe highlight");
-      disableHighlight();
-    } else if (event.data.type === "toggle-iframe-highlight") {
-      var _enabled = event.data.enabled !== undefined ? event.data.enabled : !highlightEnabled;
-      console.log("Toggle iframe highlight to:", _enabled);
-      if (_enabled) {
-        enableHighlight();
-      } else {
-        disableHighlight();
-      }
-    } else if (event.data.type === "update-selected-element") {
-      var selector = event.data.selector;
-      console.log("Update selected element with selector:", selector);
-      if (selector) {
         try {
-          var element = document.querySelector(selector);
-          console.log("Found element by selector:", element);
-          updateSelectedHighlight(element);
-        } catch (error) {
-          console.warn("Failed to select element:", error);
-          updateSelectedHighlight(null);
+            firebaseApp = initializeApp(firebaseConfig);
+            messaging = getMessaging(firebaseApp);
+        } catch (e) {
+            console.warn('Firebase initialization failed:', e);
         }
-      } else {
-        updateSelectedHighlight(null);
-      }
-    } else if (event.data.type === "clear-selected-element") {
-      console.log("Clear selected element");
-      updateSelectedHighlight(null);
-    }
-  }
 
-  // 启用高亮功能
-  function enableHighlight() {
-    console.log("Enabling highlight");
-    document.addEventListener("mouseover", handleMouseOver, true);
-    document.addEventListener("mouseout", handleMouseOut, true);
-    document.addEventListener("click", handleClick, true);
-    highlightEnabled = true;
-    overlay.style.display = "block";
-  }
+        window.enableNotifications = async function() {
+            if (!messaging) {
+                alert(i18n.t('notifications_not_available'));
+                return;
+            }
 
-  // 禁用高亮功能
-  function disableHighlight() {
-    console.log("Disabling highlight");
-    highlightEnabled = false;
-    // 保持事件监听器，但通过 highlightEnabled 变量控制行为
-    // 这样可以保留选中状态的显示
-    highlightBox.style.display = "none";
-    tagLabel.style.display = "none";
-    // 不隐藏 selectedBox 和 selectedLabel，保留选中状态
-  }
+            const permission = await Notification.requestPermission();
+            if (permission !== "granted") {
+                alert(i18n.t('notifications_denied'));
+                return;
+            }
 
-  // 完全禁用高亮功能（移除所有监听器）
-  function fullyDisableHighlight() {
-    console.log("Fully disabling highlight");
-    highlightEnabled = false;
-    document.removeEventListener("mouseover", handleMouseOver, true);
-    document.removeEventListener("mouseout", handleMouseOut, true);
-    document.removeEventListener("click", handleClick, true);
-    overlay.style.display = "none";
-    highlightBox.style.display = "none";
-    tagLabel.style.display = "none";
-    selectedBox.style.display = "none";
-    selectedLabel.style.display = "none";
-  }
+            try {
+                const token = await getToken(messaging, {
+                    vapidKey: "BF0-LZVn9xMFGyJdtSzATI1y25CyxOd1eldpQ43zzY57OImPeE0FhMKFT3dNsYbnwnnALh_f_k-LQtgwbVBQW5Vs"
+                });
+                alert(i18n.t('notifications_enabled'));
+                State.startLocalReminders();
+            } catch (e) {
+                console.error('Push token error:', e);
+            }
+        };
 
-  // 添加事件监听
-  enableHighlight();
-  window.addEventListener("message", handleParentMessage);
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(() => console.log('SW registered'))
+                .catch(err => console.log('SW error', err));
+        }
+    </script>
 
-  // 暴露全局函数供外部调用
-  window.__iframeHighlightControl = {
-    enable: enableHighlight,
-    disable: disableHighlight,
-    fullyDisable: fullyDisableHighlight,
-    isEnabled: function isEnabled() {
-      return highlightEnabled;
-    },
-    getSelectedElement: function getSelectedElement() {
-      return selectedElement;
-    },
-    updateSelected: updateSelectedHighlight,
-    // 通过消息发送开关控制
-    sendToggleMessage: function sendToggleMessage(enabled) {
-      window.parent.postMessage({
-        type: 'iframe-highlight-status',
-        enabled: enabled || highlightEnabled,
-        source: 'iframe-highlight-injector'
-      }, '*');
-    }
-  };
-
-  // 通知父窗口脚本已加载
-  try {
-    window.parent.postMessage({
-      type: "iframe-highlight-ready",
-      data: {
-        url: window.location.href,
-        userAgent: navigator.userAgent,
-        timestamp: Date.now()
-      },
-      source: "iframe-highlight-injector"
-    }, "*");
-  } catch (error) {
-    console.warn("无法发送就绪消息到父窗口:", error);
-  }
-
-  // 清理函数
-  window.__iframeHighlightCleanup = function () {
-    fullyDisableHighlight();
-    window.removeEventListener("message", handleParentMessage);
-    if (overlay.parentElement) {
-      overlay.parentElement.removeChild(overlay);
-    }
-    delete window.__iframeHighlightInitialized;
-    delete window.__iframeHighlightCleanup;
-  };
-})();
-<!-- Firebase + Notifications + PWA -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
-// ===== FIREBASE =====
-const firebaseConfig = {
-  apiKey: "AIzaSyDS9_Ev32yr6q4801I5YOxzaFezW7SEYg4",
-  authDomain: "mammocare.firebaseapp.com",
-  projectId: "mammocare",
-  storageBucket: "mammocare.firebasestorage.app",
-  messagingSenderId: "440171934985",
-  appId: "1:440171934985:web:dab31a294e12636fd94fd8"
-};
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
-// ===== КНОПКА =====
-window.enableNotifications = async function () {
-  const permission = await Notification.requestPermission();
-  if (permission !== "granted") {
-    alert("Разрешение отклонено");
-    return;
-  }
-  try {
-    const token = await getToken(messaging, {
-      vapidKey: "BF0-LZVn9xMFGyJdtSzATl1y25CyxOd1eldpQ43zzY57OImPeE0FhMKFT3dNsYbnwnnALkf_k-LQtgwbVBQW5Vs"
-    });
-    console.log("TOKEN:", token);
-    alert("Уведомления включены ✅");
-    startLocalReminders();
-  } catch (e) {
-    console.error(e);
-  }
-};
-// ===== PUSH (когда сайт открыт) =====
-onMessage(messaging, (payload) => {
-  showNotification(
-    payload.notification?.title || "MammoCare",
-    payload.notification?.body || ""
-  );
-});
-// ===== ПРОСТОЕ УВЕДОМЛЕНИЕ =====
-function showNotification(title, body) {
-  if (Notification.permission === "granted") {
-    new Notification(title, { body });
-  }
-}
-// ===== ЛОКАЛЬНЫЕ НАПОМИНАНИЯ =====
-function startLocalReminders() {
-  scheduleDailyReminder();
-  scheduleMonthlyReminder();
-  setInterval(checkCycleReminder, 21600000);
-}
-// каждый день в 20:00
-function scheduleDailyReminder() {
-  setInterval(() => {
-    const now = new Date();
-    if (now.getHours() === 20 && now.getMinutes() === 0) {
-      showNotification("MammoCare 💗", "Проверь своё здоровье сегодня");
-    }
-  }, 60000);
-}
-// 5 число месяца в 10:00
-function scheduleMonthlyReminder() {
-  setInterval(() => {
-    const now = new Date();
-    if (now.getDate() === 5 && now.getHours() === 10 && now.getMinutes() === 0) {
-      showNotification("Самообследование 💗", "Сегодня идеальный день");
-    }
-  }, 60000);
-}
-// по циклу
-function checkCycleReminder() {
-  const cycleDay = parseInt(localStorage.getItem("cycleDay"));
-  if (cycleDay >= 5 && cycleDay <= 7) {
-    showNotification("Важно 💗", "Оптимальный день для самообследования");
-  }
-}
-// ===== PWA =====
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./service-worker.js')
-    .then(() => console.log("SW registered"))
-    .catch(err => console.log("SW error", err));
-}
-</script>
-<button onclick="enableNotifications()" style="
-  padding: 12px 20px;
-  background: #ec4899;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-">
-  🔔 Получать уведомления
-</button>
+    <script src="app.js"></script>
 </body>
 </html>
-
-
-
