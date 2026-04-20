@@ -309,6 +309,59 @@
   </div>
 </div>
 
+<!-- 5th Day Reminder Modal -->
+<div id="fifth-day-modal" class="modal-overlay hidden">
+  <div class="bg-white rounded-2xl w-full max-w-md p-6 slide-up">
+    <div class="text-center mb-4">
+      <div class="w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4 text-cyan-600 pulse">
+        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      </div>
+      <h2 class="text-xl font-bold text-gray-800">5-й день цикла</h2>
+      <p class="text-gray-600 mt-2">Идеальное время для самообследования!</p>
+    </div>
+
+    <div class="space-y-4">
+      <div class="p-4 bg-pink-50 rounded-lg border border-pink-200">
+        <h3 class="font-semibold text-pink-800 mb-2 flex items-center gap-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2M10.5 7H13.5L19 16L16.5 17.5L14 13V22H10V13L7.5 17.5L5 16L10.5 7Z"/></svg>
+          Рекомендация
+        </h3>
+        <p class="text-sm text-pink-700">Сегодня 5-й день вашего менструального цикла — оптимальное время для ежемесячного самообследования груди.</p>
+      </div>
+
+      <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+        <h3 class="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Что сделать сегодня:
+        </h3>
+        <ul class="text-sm text-purple-700 space-y-2">
+          <li class="flex items-start gap-2">
+            <span class="text-purple-500 mt-1">•</span>
+            <span>Пройдите самообследование (займет 5-7 минут)</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-purple-500 mt-1">•</span>
+            <span>Обновите оценку риска (учитывая текущее состояние)</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="closeFifthDayModal()" class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
+          Позже
+        </button>
+        <button onclick="openSelfExamFromReminder()" class="flex-1 py-3 bg-primary text-white rounded-lg hover:bg-pink-600 font-medium">
+          Самообследование
+        </button>
+      </div>
+
+      <button onclick="openRiskModalFromReminder()" class="w-full py-2 text-primary hover:underline text-sm font-medium">
+        Обновить оценку риска
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ HEADER ============ -->
 <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
   <div class="container mx-auto px-4 py-3">
@@ -381,6 +434,7 @@
         <div>
           <p class="text-sm text-gray-600">Ваш риск</p>
           <p class="text-2xl font-bold" id="home-risk-level">—</p>
+          <p class="text-xs text-gray-500 mt-1" id="home-risk-date"></p>
         </div>
         <button id="recalculate-risk" class="text-sm text-primary hover:underline">Пересчитать</button>
       </div>
@@ -768,7 +822,7 @@
         <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><i data-feather="mail" class="w-5 h-5 text-secondary"></i> Контакты</h3>
         <div class="space-y-2 text-gray-600">
           <p>Instagram: <a href="https://instagram.com/qyzqylttaspa" target="_blank" class="text-primary font-medium">@qyzqylttaspa</a></p>
-          <p>Email: <a href="/cdn-cgi/l/email-protection#b2dbdcd4ddf2dfd3dfdfddd1d3c0d79cd9c8" class="text-primary font-medium"><span class="__cf_email__" data-cfemail="0960676f664964686464666a687b6c276273">[email&#160;protected]</span></a></p>
+          <p>Email: <a href="/cdn-cgi/l/email-protection#b2dbdcd4ddf2dfd3dfdfddd1d3c0d79cd9c8" class="text-primary font-medium"><span class="__cf_email__" data-cfemail="097a7c747d764a434f4a434f4a">[email&#160;protected]</span></a></p>
         </div>
       </div>
     </div>
@@ -788,6 +842,21 @@
             <p class="text-sm opacity-80 mt-1">С нами с <span id="account-since"></span></p>
           </div>
         </div>
+
+        <!-- Risk Level in Account -->
+        <div id="account-risk-section" class="bg-white/10 rounded-xl p-4 mb-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm opacity-80">Ваш уровень риска</p>
+              <p class="text-2xl font-bold" id="account-risk-level">—</p>
+              <p class="text-xs opacity-70 mt-1" id="account-risk-date"></p>
+            </div>
+            <button onclick="openRiskModalFromAccount()" class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition text-sm">
+              Обновить
+            </button>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div class="bg-yellow-50 rounded-xl p-4 text-center">
             <p class="text-2xl font-bold text-yellow-700" id="account-points">0</p>
@@ -1103,6 +1172,7 @@ let markers = [];
 let examStep = 0;
 let examAnswers = [];
 let currentLessonDay = null;
+let fifthDayReminderShown = false; // Track if 5th day reminder was shown today
 
 // ========================================
 // SELF EXAM
@@ -1125,6 +1195,11 @@ function openSelfExam() {
   examAnswers = [];
   $('selfexam-modal').classList.remove('hidden');
   renderExamStep();
+}
+
+function openSelfExamFromReminder() {
+  closeFifthDayModal();
+  openSelfExam();
 }
 
 function closeSelfExam() {
@@ -1166,6 +1241,42 @@ function finishExam() {
     <p class="font-bold ${color} mb-4 text-lg">${result}</p>
     <button onclick="closeSelfExam()" class="w-full py-2 bg-gray-200 rounded-lg">Закрыть</button>
   `;
+}
+
+// ========================================
+// 5TH DAY REMINDER
+// ========================================
+function checkFifthDayReminder() {
+  const today = new Date();
+  const cycleDay = getCycleDay(today);
+
+  if (cycleDay === 5) {
+    const lastReminderDate = loadLocal('lastFifthDayReminder');
+    const todayStr = today.toDateString();
+
+    // Show reminder only once per day and only once per cycle
+    if (lastReminderDate !== todayStr) {
+      saveLocal('lastFifthDayReminder', todayStr);
+      $('fifth-day-modal').classList.remove('hidden');
+    }
+  }
+}
+
+function closeFifthDayModal() {
+  $('fifth-day-modal').classList.add('hidden');
+}
+
+function openRiskModalFromReminder() {
+  closeFifthDayModal();
+  $('risk-modal').classList.remove('hidden');
+  // Reset the form to show inputs again
+  $('risk-result').classList.add('hidden');
+}
+
+function openRiskModalFromAccount() {
+  $('risk-modal').classList.remove('hidden');
+  // Reset the form to show inputs again
+  $('risk-result').classList.add('hidden');
 }
 
 // ========================================
@@ -1345,7 +1456,18 @@ function calculateRisk() {
   let resultKey = score <= 3 ? "risk_low" : score <= 7 ? "risk_moderate" : "risk_high";
   let adviceKey = score <= 3 ? "risk_adv_low" : score <= 7 ? "risk_adv_mod" : "risk_adv_high";
 
-  saveLocal('riskData', { level: resultKey });
+  // Save with full data including date
+  saveLocal('riskData', {
+    level: resultKey,
+    date: new Date().toISOString(),
+    age: age,
+    weight: weight,
+    height: height,
+    family: family,
+    smoke: smoke,
+    symptoms: symptoms,
+    score: score
+  });
   saveLocal('riskDone', true);
 
   $('risk-result-text').textContent = t(resultKey);
@@ -1353,11 +1475,41 @@ function calculateRisk() {
   $('risk-result').classList.remove('hidden');
 
   updateHomeRisk(resultKey);
+  updateAccountRisk(resultKey);
 }
 
 function updateHomeRisk(levelKey) {
-  $('home-risk-level')?.textContent && ($('home-risk-level').textContent = t(levelKey));
-  $('risk-card')?.classList.remove('hidden');
+  const riskCard = $('risk-card');
+  if (riskCard) {
+    riskCard.classList.remove('hidden');
+    $('home-risk-level').textContent = t(levelKey);
+
+    // Show date
+    const riskData = loadLocal('riskData');
+    if (riskData && riskData.date) {
+      const date = new Date(riskData.date);
+      $('home-risk-date').textContent = `Обновлено: ${date.toLocaleDateString('ru-RU')}`;
+    }
+  }
+}
+
+function updateAccountRisk(levelKey) {
+  const riskData = loadLocal('riskData');
+  if (riskData) {
+    $('account-risk-level').textContent = t(levelKey);
+    if (riskData.date) {
+      const date = new Date(riskData.date);
+      $('account-risk-date').textContent = `Последнее обновление: ${date.toLocaleDateString('ru-RU')}`;
+    }
+  }
+}
+
+function loadAndDisplayRisk() {
+  const riskData = loadLocal('riskData');
+  if (riskData && riskData.level) {
+    updateHomeRisk(riskData.level);
+    updateAccountRisk(riskData.level);
+  }
 }
 
 function updateHomeXP() {
@@ -1430,14 +1582,16 @@ function getYearWord(n) {
 }
 
 function getCycleDay(date = new Date()) {
-  if (!cycleData) return null;
+  if (!cycleData || !cycleData.lastPeriod) return null;
   let periodStart = new Date(cycleData.lastPeriod);
   while (addDays(periodStart, cycleData.cycleLength) <= date) periodStart = addDays(periodStart, cycleData.cycleLength);
+  // Go back if periodStart is after date
+  while (periodStart > date) periodStart = addDays(periodStart, -cycleData.cycleLength);
   return daysBetween(periodStart, date) + 1;
 }
 
 function getDayPhase(date) {
-  if (!cycleData) return null;
+  if (!cycleData || !cycleData.lastPeriod) return null;
   let periodStart = new Date(cycleData.lastPeriod);
   while (addDays(periodStart, cycleData.cycleLength) <= date) periodStart = addDays(periodStart, cycleData.cycleLength);
   while (periodStart > date) periodStart = addDays(periodStart, -cycleData.cycleLength);
@@ -1477,7 +1631,7 @@ function updateCycleUI() {
 
   const today = new Date();
   const cycleDay = getCycleDay(today);
-  $('current-cycle-day').textContent = cycleDay;
+  $('current-cycle-day').textContent = cycleDay || '—';
 
   let next = new Date(cycleData.lastPeriod);
   while (next <= today) next = addDays(next, cycleData.cycleLength);
@@ -1493,6 +1647,9 @@ function updateCycleUI() {
   updateHomeStatus();
   renderCalendar();
   renderForecast();
+
+  // Check if it's the 5th day for reminder
+  checkFifthDayReminder();
 }
 
 function updateHomeStatus() {
@@ -1538,7 +1695,7 @@ function renderCalendar() {
 
 function renderForecast() {
   const container = $('forecast-list');
-  if (!container || !cycleData) return;
+  if (!container || !cycleData || !cycleData.lastPeriod) return;
   let next = new Date(cycleData.lastPeriod);
   while (next <= new Date()) next = addDays(next, cycleData.cycleLength);
   let html = '';
@@ -1619,6 +1776,9 @@ function updateAccountUI() {
   $('account-streak').textContent = progress.streak;
   $('account-days').textContent = progress.completedDays.length;
   $('account-achievements').textContent = progress.achievements.length;
+
+  // Load and display risk data
+  loadAndDisplayRisk();
 }
 
 function renderAccount() {
@@ -1793,7 +1953,7 @@ function startLocalReminders() {
       new Notification("MammoCare 💗", { body: "Проверь своё здоровье сегодня" });
     }
     if (now.getDate() === 5 && now.getHours() === 10 && now.getMinutes() === 0) {
-      new Notification("Самообследование 💗", { body: "Сегодня идеальный день" });
+      new Notification("Самообследование 💗", { body: "Сегодня 5-й день цикла - идеальное время!" });
     }
   }, 60000);
 }
@@ -1818,6 +1978,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCycleData();
   updateHomeStatus();
   updateHomeXP();
+  loadAndDisplayRisk(); // Load and display risk data on init
 
   document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => $('mobile-menu')?.classList.add('hidden')));
 
@@ -1827,7 +1988,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('calculate-risk-btn')?.addEventListener('click', calculateRisk);
   $('skip-risk-btn')?.addEventListener('click', () => hide($('risk-modal')));
   $('continue-after-risk')?.addEventListener('click', () => hide($('risk-modal')));
-  $('recalculate-risk')?.addEventListener('click', () => show($('risk-modal')));
+  $('recalculate-risk')?.addEventListener('click', () => $('risk-modal').classList.remove('hidden'));
 
   $('save-cycle-settings')?.addEventListener('click', () => {
     if (cycleMode === 'menopause') {
@@ -1866,7 +2027,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('exam-done-btn')?.addEventListener('click', () => { hide($('exam-reminder')); alert('Отлично!'); });
 
-  if (!loadLocal('riskDone')) setTimeout(() => show($('risk-modal')), 500);
+  // Show risk modal on first visit if not done
+  if (!loadLocal('riskDone')) {
+    setTimeout(() => show($('risk-modal')), 500);
+  }
+
+  // Check for 5th day reminder when cycle is configured
+  if (cycleData && cycleData.lastPeriod) {
+    checkFifthDayReminder();
+  }
 
   // Password strength indicator
   $('register-password')?.addEventListener('input', function() {
@@ -1881,5 +2050,481 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+
+<script>
+/**
+ * Iframe 元素高亮注入脚本
+ * 需要在目标网站中引入此脚本来支持跨域 iframe 高亮功能
+ *
+ * 使用方法：
+ * 1. 将此脚本添加到目标网站的 HTML 中
+ * 2. 或通过浏览器扩展、用户脚本等方式注入
+ */
+
+(function () {
+  "use strict";
+
+  // 检查是否在 iframe 中
+  if (window.self === window.top) {
+    return; // 不在 iframe 中，不执行
+  }
+
+  // 检查是否已经初始化过
+  if (window.__iframeHighlightInitialized) {
+    return;
+  }
+  window.__iframeHighlightInitialized = true;
+  console.log("Iframe 高亮脚本已加载");
+
+  // 创建高亮覆盖层
+  var overlay = document.createElement("div");
+  overlay.id = "iframe-highlight-overlay";
+  overlay.style.cssText = "\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    pointer-events: none;\n    z-index: 999999;\n    overflow: hidden;\n  ";
+
+  // 创建悬停高亮框（虚线边框）
+  var highlightBox = document.createElement("div");
+  highlightBox.id = "iframe-highlight-box";
+  highlightBox.style.cssText = "\n    position: absolute;\n    border: 2px dashed #007AFF;\n    background: rgba(0, 122, 255, 0.08);\n    pointer-events: none;\n    display: none;\n    transition: all 0.1s ease;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);\n    border-radius: 2px;\n  ";
+
+  // 创建选中节点的常驻高亮框（实线边框）
+  var selectedBox = document.createElement("div");
+  selectedBox.id = "iframe-selected-box";
+  selectedBox.style.cssText = "\n    position: absolute;\n    border: 2px solid #007AFF;\n    pointer-events: none;\n    display: none;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 107, 53, 0.4);\n    border-radius: 2px;\n    z-index: 1000000;\n  ";
+
+  // 创建悬停标签显示
+  var tagLabel = document.createElement("div");
+  tagLabel.id = "iframe-tag-label";
+  tagLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 2px 6px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 2px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000001;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);\n    font-weight: 500;\n  ";
+
+  // 创建选中节点标签
+  var selectedLabel = document.createElement("div");
+  selectedLabel.id = "iframe-selected-label";
+  selectedLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 3px 8px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 3px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000002;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\n    font-weight: 600;\n  ";
+  overlay.appendChild(highlightBox);
+  overlay.appendChild(selectedBox);
+  overlay.appendChild(tagLabel);
+  overlay.appendChild(selectedLabel);
+  document.body.appendChild(overlay);
+
+  // 存储当前选中的元素
+  var selectedElement = null;
+  var highlightEnabled = false;
+
+  // 更新选中元素的高亮显示
+  function updateSelectedHighlight(element) {
+    console.log("updateSelectedHighlight called with:", element);
+    if (!element) {
+      selectedBox.style.display = "none";
+      selectedLabel.style.display = "none";
+      selectedElement = null;
+      console.log("Cleared selected highlight");
+      return;
+    }
+    selectedElement = element;
+    var rect = element.getBoundingClientRect();
+    console.log("Selected element rect:", rect);
+
+    // 更新选中高亮框位置
+    selectedBox.style.display = "block";
+    selectedBox.style.left = "".concat(rect.left - 2, "px");
+    selectedBox.style.top = "".concat(rect.top - 2, "px");
+    selectedBox.style.width = "".concat(rect.width + 4, "px");
+    selectedBox.style.height = "".concat(rect.height + 4, "px");
+
+    // 更新选中标签位置和内容
+    selectedLabel.style.display = "block";
+    selectedLabel.textContent = "\u2713 <".concat(element.tagName.toLowerCase(), ">");
+
+    // 计算标签位置，确保不超出视窗
+    var labelTop = rect.top - 28;
+    var labelLeft = rect.left;
+
+    // 如果标签会超出顶部，显示在元素下方
+    if (labelTop < 5) {
+      labelTop = rect.bottom + 5;
+    }
+
+    // 如果标签会超出右侧，向左调整
+    var labelWidth = selectedLabel.offsetWidth || 100; // 预估宽度
+    if (labelLeft + labelWidth > window.innerWidth - 10) {
+      labelLeft = window.innerWidth - labelWidth - 10;
+    }
+    selectedLabel.style.left = "".concat(Math.max(5, labelLeft), "px");
+    selectedLabel.style.top = "".concat(labelTop, "px");
+    console.log("Selected highlight positioned at:", {
+      left: selectedBox.style.left,
+      top: selectedBox.style.top,
+      width: selectedBox.style.width,
+      height: selectedBox.style.height
+    });
+  }
+  function getElementSelector(element) {
+    if (!(element instanceof Element)) throw new Error('Argument must be a DOM element');
+    var segments = [];
+    var current = element;
+    while (current !== document.documentElement) {
+      var selector = '';
+      // 优先检查唯一ID
+      if (current.id && document.querySelectorAll("#".concat(current.id)).length === 1) {
+        segments.unshift("#".concat(current.id));
+        break; // ID唯一，无需继续向上
+      }
+
+      // 生成类名选择器（取第一个有效类名）
+      var classes = Array.from(current.classList).filter(function (c) {
+        return !c.startsWith('js-');
+      });
+      var className = classes.length > 0 ? ".".concat(classes[0]) : '';
+
+      // 生成位置索引（nth-child）
+      var tag = current.tagName.toLowerCase();
+      if (!className) {
+        var siblings = Array.from(current.parentNode.children);
+        var index = siblings.findIndex(function (el) {
+          return el === current;
+        }) + 1;
+        selector = "".concat(tag, ":nth-child(").concat(index, ")");
+      } else {
+        selector = className;
+      }
+      segments.unshift(selector);
+      current = current.parentElement;
+    }
+
+    // 处理根元素
+    if (current === document.documentElement) {
+      segments.unshift('html');
+    }
+    return segments.join(' > ');
+  }
+
+  // 获取元素文本内容
+  function getElementText(element) {
+    var _element$textContent;
+    if (element.tagName === "INPUT") {
+      return element.value || element.placeholder || "";
+    }
+    if (element.tagName === "TEXTAREA") {
+      return element.value || element.placeholder || "";
+    }
+    var text = ((_element$textContent = element.textContent) === null || _element$textContent === void 0 ? void 0 : _element$textContent.trim()) || "";
+    return text.length > 50 ? text.substring(0, 50) + "..." : text;
+  }
+
+  // 获取元素属性信息
+  function getElementAttributes(element) {
+    var attrs = {};
+    for (var i = 0; i < element.attributes.length; i++) {
+      var attr = element.attributes[i];
+      attrs[attr.name] = attr.value;
+    }
+    return attrs;
+  }
+
+  // 鼠标悬停事件处理
+  function handleMouseOver(e) {
+    if (!highlightEnabled) return;
+    var target = e.target;
+    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
+      return;
+    }
+
+    // 避免高亮 html 和 body 元素
+    if (target === document.documentElement || target === document.body) {
+      return;
+    }
+
+    // 如果是已选中的元素，不显示悬停高亮
+    if (target === selectedElement) {
+      highlightBox.style.display = "none";
+      tagLabel.style.display = "none";
+      return;
+    }
+    var rect = target.getBoundingClientRect();
+    var selector = getElementSelector(target);
+    var text = getElementText(target);
+    var attributes = getElementAttributes(target);
+
+    // 更新悬停高亮框位置
+    highlightBox.style.display = "block";
+    highlightBox.style.left = "".concat(rect.left - 2, "px");
+    highlightBox.style.top = "".concat(rect.top - 2, "px");
+    highlightBox.style.width = "".concat(rect.width + 4, "px");
+    highlightBox.style.height = "".concat(rect.height + 4, "px");
+
+    // 更新标签位置和内容
+    tagLabel.style.display = "block";
+    tagLabel.textContent = "<".concat(target.tagName.toLowerCase(), ">");
+
+    // 计算标签位置，确保不超出视窗
+    var labelTop = rect.top - 22;
+    var labelLeft = rect.left;
+
+    // 如果标签会超出顶部，显示在元素下方
+    if (labelTop < 0) {
+      labelTop = rect.bottom + 5;
+    }
+
+    // 如果标签会超出右侧，向左调整
+    if (labelLeft + tagLabel.offsetWidth > window.innerWidth) {
+      labelLeft = window.innerWidth - tagLabel.offsetWidth - 5;
+    }
+    tagLabel.style.left = "".concat(Math.max(0, labelLeft), "px");
+    tagLabel.style.top = "".concat(labelTop, "px");
+
+    // 发送消息到父窗口
+    var elementInfo = {
+      tagName: target.tagName.toLowerCase(),
+      rect: {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+        x: rect.x,
+        y: rect.y
+      },
+      selector: selector,
+      text: text,
+      attributes: attributes,
+      url: window.location.href,
+      path: window.location.pathname,
+      timestamp: Date.now()
+    };
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-hover",
+        data: elementInfo,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 鼠标离开事件处理
+  function handleMouseOut(e) {
+    if (!highlightEnabled) return;
+    var relatedTarget = e.relatedTarget;
+
+    // 如果鼠标移动到高亮相关元素上，不隐藏高亮
+    if (relatedTarget && (relatedTarget === highlightBox || relatedTarget === tagLabel || relatedTarget === overlay || relatedTarget === selectedBox || relatedTarget === selectedLabel)) {
+      return;
+    }
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-hover",
+        data: null,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 点击事件处理
+  function handleClick(e) {
+    var target = e.target;
+    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
+      return;
+    }
+
+    // 避免处理 html 和 body 元素
+    if (target === document.documentElement || target === document.body) {
+      return;
+    }
+
+    // 检查是否是交互元素，这些元素需要保留默认行为
+    var isInteractiveElement = ['input', 'textarea', 'select', 'button', 'a'].includes(target.tagName.toLowerCase());
+
+    // 如果高亮功能启用，对于非交互元素阻止默认行为和事件传播
+    if (highlightEnabled) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    var rect = target.getBoundingClientRect();
+    var selector = getElementSelector(target);
+    var text = getElementText(target);
+    var attributes = getElementAttributes(target);
+    console.log("Element clicked:", {
+      tagName: target.tagName,
+      selector: selector,
+      rect: rect
+    });
+
+    // 立即更新选中高亮
+    updateSelectedHighlight(target);
+
+    // 隐藏悬停高亮，因为现在是选中状态
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    var elementInfo = {
+      tagName: target.tagName.toLowerCase(),
+      rect: {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+        x: rect.x,
+        y: rect.y
+      },
+      selector: selector,
+      text: text,
+      attributes: attributes,
+      url: window.location.href,
+      path: window.location.pathname,
+      timestamp: Date.now()
+    };
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-click",
+        data: elementInfo,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 监听来自父窗口的消息
+  function handleParentMessage(event) {
+    console.log("Received message from parent:", event.data);
+    if (event.data.type === "iframe-highlight-toggle") {
+      var enabled = event.data.enabled;
+      console.log("Highlight toggle:", enabled);
+      if (enabled) {
+        enableHighlight();
+      } else {
+        disableHighlight();
+      }
+    } else if (event.data.type === "enable-iframe-highlight") {
+      console.log("Enable iframe highlight");
+      enableHighlight();
+    } else if (event.data.type === "disable-iframe-highlight") {
+      console.log("Disable iframe highlight");
+      disableHighlight();
+    } else if (event.data.type === "toggle-iframe-highlight") {
+      var _enabled = event.data.enabled !== undefined ? event.data.enabled : !highlightEnabled;
+      console.log("Toggle iframe highlight to:", _enabled);
+      if (_enabled) {
+        enableHighlight();
+      } else {
+        disableHighlight();
+      }
+    } else if (event.data.type === "update-selected-element") {
+      var selector = event.data.selector;
+      console.log("Update selected element with selector:", selector);
+      if (selector) {
+        try {
+          var element = document.querySelector(selector);
+          console.log("Found element by selector:", element);
+          updateSelectedHighlight(element);
+        } catch (error) {
+          console.warn("Failed to select element:", error);
+          updateSelectedHighlight(null);
+        }
+      } else {
+        updateSelectedHighlight(null);
+      }
+    } else if (event.data.type === "clear-selected-element") {
+      console.log("Clear selected element");
+      updateSelectedHighlight(null);
+    }
+  }
+
+  // 启用高亮功能
+  function enableHighlight() {
+    console.log("Enabling highlight");
+    document.addEventListener("mouseover", handleMouseOver, true);
+    document.addEventListener("mouseout", handleMouseOut, true);
+    document.addEventListener("click", handleClick, true);
+    highlightEnabled = true;
+    overlay.style.display = "block";
+  }
+
+  // 禁用高亮功能
+  function disableHighlight() {
+    console.log("Disabling highlight");
+    highlightEnabled = false;
+    // 保持事件监听器，但通过 highlightEnabled 变量控制行为
+    // 这样可以保留选中状态的显示
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    // 不隐藏 selectedBox 和 selectedLabel，保留选中状态
+  }
+
+  // 完全禁用高亮功能（移除所有监听器）
+  function fullyDisableHighlight() {
+    console.log("Fully disabling highlight");
+    highlightEnabled = false;
+    document.removeEventListener("mouseover", handleMouseOver, true);
+    document.removeEventListener("mouseout", handleMouseOut, true);
+    document.removeEventListener("click", handleClick, true);
+    overlay.style.display = "none";
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    selectedBox.style.display = "none";
+    selectedLabel.style.display = "none";
+  }
+
+  // 添加事件监听
+  enableHighlight();
+  window.addEventListener("message", handleParentMessage);
+
+  // 暴露全局函数供外部调用
+  window.__iframeHighlightControl = {
+    enable: enableHighlight,
+    disable: disableHighlight,
+    fullyDisable: fullyDisableHighlight,
+    isEnabled: function isEnabled() {
+      return highlightEnabled;
+    },
+    getSelectedElement: function getSelectedElement() {
+      return selectedElement;
+    },
+    updateSelected: updateSelectedHighlight,
+    // 通过消息发送开关控制
+    sendToggleMessage: function sendToggleMessage(enabled) {
+      window.parent.postMessage({
+        type: 'iframe-highlight-status',
+        enabled: enabled || highlightEnabled,
+        source: 'iframe-highlight-injector'
+      }, '*');
+    }
+  };
+
+  // 通知父窗口脚本已加载
+  try {
+    window.parent.postMessage({
+      type: "iframe-highlight-ready",
+      data: {
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        timestamp: Date.now()
+      },
+      source: "iframe-highlight-injector"
+    }, "*");
+  } catch (error) {
+    console.warn("无法发送就绪消息到父窗口:", error);
+  }
+
+  // 清理函数
+  window.__iframeHighlightCleanup = function () {
+    fullyDisableHighlight();
+    window.removeEventListener("message", handleParentMessage);
+    if (overlay.parentElement) {
+      overlay.parentElement.removeChild(overlay);
+    }
+    delete window.__iframeHighlightInitialized;
+    delete window.__iframeHighlightCleanup;
+  };
+})();
+
+</script>
 </body>
 </html>
